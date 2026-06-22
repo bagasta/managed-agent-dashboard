@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import type { User } from '../types'
 import { useI18n } from '../i18n'
 
@@ -53,7 +53,7 @@ export default function Layout({ user, onLogout }: { user: User; onLogout: () =>
     <div className="h-screen w-screen flex bg-ink-50">
       <aside className="w-64 shrink-0 bg-white border-r border-ink-100 flex flex-col">
         <div className="px-5 py-5 border-b border-ink-100 flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-ink-900" />
+          <span className="w-7 h-7 rounded-lg bg-brand-600 text-white flex items-center justify-center text-xs font-semibold">C</span>
           <span className="font-semibold tracking-tight">Clevio AI Staff</span>
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-5">
@@ -81,16 +81,22 @@ export default function Layout({ user, onLogout }: { user: User; onLogout: () =>
               </button>
             </div>
           </div>
-          <div className="text-sm truncate">{display}</div>
-          {user.subscription && (
-            <div className="mt-0.5 text-[11px] text-ink-500">{user.subscription.plan_label}</div>
-          )}
-          <button
-            onClick={() => { onLogout(); nav('/') }}
-            className="mt-2 text-xs text-ink-700 hover:text-ink-900"
-          >
-            {t('nav.logout', 'Log out')}
-          </button>
+          <div className="bg-ink-50 border border-ink-100 rounded-xl p-3">
+            <div className="text-sm truncate">{display}</div>
+            {user.subscription && (
+              <div className="mt-0.5 text-[11px] text-ink-500">{user.subscription.plan_label}</div>
+            )}
+            <button
+              onClick={() => { onLogout(); nav('/') }}
+              className="mt-2 text-xs text-ink-700 hover:text-ink-900"
+            >
+              {t('nav.logout', 'Log out')}
+            </button>
+            <div className="mt-3 flex gap-3 text-[11px] text-ink-400">
+              <Link to="/privacy" className="hover:text-ink-700">Privacy</Link>
+              <Link to="/terms" className="hover:text-ink-700">Terms</Link>
+            </div>
+          </div>
         </div>
       </aside>
       <main className="flex-1 overflow-hidden flex flex-col">
