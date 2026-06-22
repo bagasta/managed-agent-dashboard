@@ -16,7 +16,7 @@ export function McpToolSelector({ selected, onChange }: Props) {
 
   return (
     <div className="space-y-3">
-      <p className="text-sm font-medium text-gray-700">{t('mcp.title', 'Pilih MCP Tools')}</p>
+      <p className="text-sm font-medium text-ink-700">{t('mcp.title', 'Pilih MCP Tools')}</p>
       <div className="grid grid-cols-1 gap-2">
         {MCP_TOOLS.map((tool: McpTool) => (
           <label
@@ -35,23 +35,23 @@ export function McpToolSelector({ selected, onChange }: Props) {
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-900">{tool.name}</span>
+                <span className="text-sm font-medium text-ink-900">{tool.name}</span>
                 <span className="text-xs px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700">
                   {tool.category}
                 </span>
               </div>
-              <p className="text-xs text-gray-500 mt-0.5">{tool.description}</p>
+              <p className="text-xs text-ink-500 mt-0.5">{tool.description}</p>
             </div>
           </label>
         ))}
       </div>
 
       {selectedScopes.length > 0 && (
-        <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-          <p className="text-xs font-medium text-gray-600 mb-1">{t('mcp.scopes', 'Scopes yang akan diminta:')}</p>
+        <div className="mt-3 rounded-xl bg-ink-50 border border-ink-100 p-3">
+          <p className="text-xs font-medium text-ink-700 mb-1">{t('mcp.scopes', 'Scopes yang akan diminta:')}</p>
           <ul className="space-y-0.5">
             {selectedScopes.map((scope) => (
-              <li key={scope} className="text-xs text-gray-500 font-mono truncate">
+              <li key={scope} className="text-xs text-ink-500 font-mono truncate">
                 • {scope}
               </li>
             ))}

@@ -535,21 +535,21 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-5xl mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">{t('create.title', 'Buat Agent Manual')}</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-xl leading-none"
-            >
-              x
-            </button>
-          </div>
+    <div className="fixed inset-0 z-50 bg-ink-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="surface w-full max-w-lg p-0 overflow-hidden">
+        <div className="px-6 py-4 border-b border-ink-100 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-ink-900">{t('create.title', 'Buat Agent Manual')}</h2>
+          <button
+            onClick={onClose}
+            className="text-ink-400 hover:text-ink-700 text-xl leading-none"
+          >
+            x
+          </button>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="rounded-lg border border-gray-200 p-4">
+        <div className="px-6 py-5 overflow-y-auto max-h-[70vh]">
+          <form id="create-agent-form" onSubmit={handleSubmit} className="space-y-5">
+<div className="rounded-lg border border-gray-200 p-4">
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{t('create.preset', 'Preset Arthur')}</label>
@@ -851,24 +851,25 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
             </details>
 
             {error && <p className="text-sm text-red-600">{error}</p>}
-
-            <div className="flex gap-2 pt-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2 text-sm hover:bg-gray-50"
-              >
-                {t('common.cancel', 'Batal')}
-              </button>
-              <button
-                type="submit"
-                disabled={loading || !name.trim()}
-                className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? t('create.creating', 'Membuat...') : t('create.submit', 'Buat Agent Manual')}
-              </button>
-            </div>
           </form>
+        </div>
+
+        <div className="px-6 py-4 border-t border-ink-100 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="border border-ink-200 text-ink-700 rounded-lg px-4 py-2 text-sm hover:bg-ink-50"
+          >
+            {t('common.cancel', 'Batal')}
+          </button>
+          <button
+            type="submit"
+            form="create-agent-form"
+            disabled={loading || !name.trim()}
+            className="bg-brand-600 text-white rounded-lg px-4 py-2 text-sm hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? t('create.creating', 'Membuat...') : t('create.submit', 'Buat Agent Manual')}
+          </button>
         </div>
       </div>
     </div>
