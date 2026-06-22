@@ -9,6 +9,8 @@ import AgentDetail from './pages/AgentDetail'
 import Analytics from './pages/Analytics'
 import Profile from './pages/Profile'
 import Arthur from './pages/Arthur'
+import Privacy from './pages/Privacy'
+import Terms from './pages/Terms'
 import type { User } from './types'
 import { LanguageProvider } from './i18n'
 
@@ -49,6 +51,8 @@ export default function App() {
           <Route path="arthur" element={<Arthur user={user!} />} />
           <Route path="profile" element={<Profile user={user!} />} />
         </Route>
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </LanguageProvider>
