@@ -845,8 +845,8 @@ export default function Landing() {
             <div>
               <div className="text-ink-900 font-medium mb-3">{t.footer.legal}</div>
               <ul className="space-y-2">
-                <li><a href="#" className="hover:text-ink-900 transition-colors">{t.footer.links.privasi}</a></li>
-                <li><a href="#" className="hover:text-ink-900 transition-colors">{t.footer.links.ketentuan}</a></li>
+                <li><Link to="/privacy" className="hover:text-ink-900 transition-colors">{t.footer.links.privasi}</Link></li>
+                <li><Link to="/terms" className="hover:text-ink-900 transition-colors">{t.footer.links.ketentuan}</Link></li>
                 <li><a href="#" className="hover:text-ink-900 transition-colors">{t.footer.links.keamanan}</a></li>
               </ul>
             </div>

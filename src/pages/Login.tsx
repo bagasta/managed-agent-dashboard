@@ -120,6 +120,11 @@ export default function Login({ onLogin }: { onLogin: (u: User) => void }) {
               {t('login.help', 'Belum punya akun? Hubungi admin untuk diaktifkan.')}
             </p>
           </form>
+          <p className="mt-6 text-center text-xs text-ink-400">
+            <Link to="/privacy" className="hover:text-ink-700">Privacy</Link>
+            <span className="mx-2">·</span>
+            <Link to="/terms" className="hover:text-ink-700">Terms</Link>
+          </p>
         </div>
       </div>
     </div>
