@@ -9,7 +9,10 @@ import AgentDetail from './pages/AgentDetail'
 import Analytics from './pages/Analytics'
 import Profile from './pages/Profile'
 import Arthur from './pages/Arthur'
+import Privacy from './pages/Privacy'
+import Terms from './pages/Terms'
 import type { User } from './types'
+import { LanguageProvider } from './i18n'
 
 const STORAGE_KEY = 'clevio_user'
 
@@ -33,21 +36,25 @@ export default function App() {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login onLogin={handleLogin} />} />
-      <Route
-        path="/app"
-        element={user ? <Layout user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
-      >
-        <Route index element={<Overview user={user!} />} />
-        <Route path="agents" element={<Agents />} />
-        <Route path="agents/:id" element={<AgentDetail />} />
-        <Route path="analytics" element={<Analytics />} />
-        <Route path="arthur" element={<Arthur user={user!} />} />
-        <Route path="profile" element={<Profile user={user!} />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <LanguageProvider>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        <Route
+          path="/app"
+          element={user ? <Layout user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
+        >
+          <Route index element={<Overview user={user!} />} />
+          <Route path="agents" element={<Agents user={user!} />} />
+          <Route path="agents/:id" element={<AgentDetail user={user!} />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="arthur" element={<Arthur user={user!} />} />
+          <Route path="profile" element={<Profile user={user!} />} />
+        </Route>
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </LanguageProvider>
   )
 }
