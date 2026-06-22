@@ -23,20 +23,20 @@ export function McpToolSelector({ selected, onChange }: Props) {
             key={tool.id}
             className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
               selected.includes(tool.id)
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-gray-300'
+                ? 'border-brand-600 bg-brand-50'
+                : 'border-ink-200 hover:border-ink-200'
             }`}
           >
             <input
               type="checkbox"
               checked={selected.includes(tool.id)}
               onChange={() => toggle(tool.id)}
-              className="mt-0.5 h-4 w-4 text-blue-600"
+              className="mt-0.5 h-4 w-4 text-brand-600"
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-ink-900">{tool.name}</span>
-                <span className="text-xs px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700">
+                <span className="text-xs px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">
                   {tool.category}
                 </span>
               </div>

@@ -549,14 +549,14 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
 
         <div className="px-6 py-5 overflow-y-auto max-h-[70vh]">
           <form id="create-agent-form" onSubmit={handleSubmit} className="space-y-5">
-<div className="rounded-lg border border-gray-200 p-4">
+            <div className="rounded-lg border border-ink-200 p-4">
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('create.preset', 'Preset Arthur')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.preset', 'Preset Arthur')}</label>
                   <select
                     value={presetId}
                     onChange={(e) => applyPreset(e.target.value as PresetId)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                   >
                     {Object.entries(PRESETS).map(([id, preset]) => (
                       <option key={id} value={id}>{preset.label}</option>
@@ -564,22 +564,22 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('create.channel', 'Channel')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.channel', 'Channel')}</label>
                   <select
                     value={channelType}
                     onChange={(e) => setChannelType(e.target.value as 'whatsapp' | 'none')}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                   >
                     <option value="whatsapp">WhatsApp</option>
                     <option value="none">{t('create.noChannel', 'Tanpa channel')}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('create.fileCapability', 'Kemampuan file')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.fileCapability', 'Kemampuan file')}</label>
                   <select
                     value={fileCapability}
                     onChange={(e) => applyFileCapability(e.target.value as 'text_only' | 'enabled' | 'not_needed')}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                   >
                     <option value="text_only">{t('create.textOnly', 'Text only')}</option>
                     <option value="enabled">{t('create.fileEnabled', 'Terima/buat file')}</option>
@@ -591,62 +591,62 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('create.agentName', 'Nama Agent')} *</label>
+                <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.agentName', 'Nama Agent')} *</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Contoh: Akademi Juara CS"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('create.domain', 'Domain')}</label>
+                <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.domain', 'Domain')}</label>
                 <input
                   value={domain}
                   onChange={(e) => setDomain(e.target.value)}
                   placeholder="education, ecommerce, travel, clinic_wellness"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('create.goal', 'Deskripsi tujuan agent')}</label>
+              <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.goal', 'Deskripsi tujuan agent')}</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Tugas utama agent dan tipe user yang akan dilayani."
                 rows={2}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('create.businessContext', 'Konteks bisnis / owner')}</label>
+              <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.businessContext', 'Konteks bisnis / owner')}</label>
               <textarea
                 value={businessContext}
                 onChange={(e) => setBusinessContext(e.target.value)}
                 placeholder="Produk/layanan, aturan harga, jam operasional, gaya brand, proses order, hal yang wajib dieskalasi."
                 rows={4}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+                className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-y"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('create.runtimeInstructions', 'Instruksi runtime')}</label>
+              <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.runtimeInstructions', 'Instruksi runtime')}</label>
               <textarea
                 value={instructions}
                 onChange={(e) => setInstructions(e.target.value)}
                 placeholder="Kosongkan untuk dibuat otomatis dari konteks di atas."
                 rows={6}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+                className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-y"
               />
             </div>
 
-            <div className="rounded-lg border border-gray-200 p-4">
-              <div className="text-sm font-medium text-gray-800 mb-3">{t('create.runtimeCapabilities', 'Kemampuan runtime')}</div>
+            <div className="rounded-lg border border-ink-200 p-4">
+              <div className="text-sm font-medium text-ink-900 mb-3">{t('create.runtimeCapabilities', 'Kemampuan runtime')}</div>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {[
                   ['memory', 'Memory percakapan'],
@@ -661,7 +661,7 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
                   ['whatsapp_media', 'Media WhatsApp'],
                   ['wa_agent_manager', 'Kelola agent WA'],
                 ].map(([key, label]) => (
-                  <label key={key} className="flex items-center gap-2 rounded-lg border border-gray-100 px-3 py-2 text-sm">
+                  <label key={key} className="flex items-center gap-2 rounded-lg border border-ink-100 px-3 py-2 text-sm">
                     <input
                       type="checkbox"
                       checked={Boolean((toolsConfig as Record<string, unknown>)[key])}
@@ -683,23 +683,23 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('agent.operatorIds', 'Operator IDs')}</label>
+                <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.operatorIds', 'Operator IDs')}</label>
                 <textarea
                   value={operatorIds}
                   onChange={(e) => setOperatorIds(e.target.value)}
                   placeholder="+62811..., satu per baris atau pisahkan koma"
                   rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('agent.allowedSenders', 'Allowed Senders')}</label>
+                <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.allowedSenders', 'Allowed Senders')}</label>
                 <textarea
                   value={allowedSenders}
                   onChange={(e) => setAllowedSenders(e.target.value)}
                   placeholder="Kosong = semua user boleh chat"
                   rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-none"
                 />
               </div>
             </div>
@@ -707,32 +707,32 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
             {toolsConfig.escalation && (
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('agent.escalationChannel', 'Channel eskalasi')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.escalationChannel', 'Channel eskalasi')}</label>
                   <select
                     value={escalationChannel}
                     onChange={(e) => setEscalationChannel(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                   >
                     <option value="whatsapp">WhatsApp</option>
                     <option value="telegram">Telegram</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('agent.operatorPhone', 'Nomor/ID operator')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.operatorPhone', 'Nomor/ID operator')}</label>
                   <input
                     value={operatorPhone}
                     onChange={(e) => setOperatorPhone(e.target.value)}
                     placeholder="+62811..."
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('create.operatorName', 'Nama operator')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.operatorName', 'Nama operator')}</label>
                   <input
                     value={operatorName}
                     onChange={(e) => setOperatorName(e.target.value)}
                     placeholder="Tim CS"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                   />
                 </div>
               </div>
@@ -741,19 +741,19 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
             {toolsConfig.sandbox && (
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('agent.sandboxMemory', 'Sandbox memory')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.sandboxMemory', 'Sandbox memory')}</label>
                   <input
                     value={sandboxMemory}
                     onChange={(e) => setSandboxMemory(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('agent.sandboxCpu', 'Sandbox CPU')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.sandboxCpu', 'Sandbox CPU')}</label>
                   <input
                     value={sandboxCpu}
                     onChange={(e) => setSandboxCpu(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                   />
                 </div>
               </div>
@@ -761,15 +761,15 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
 
             <div className="grid md:grid-cols-4 gap-4">
               <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('agent.model', 'Model')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.model', 'Model')}</label>
                 <input
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                 />
               </div>
               <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('agent.temperature', 'Temperature')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.temperature', 'Temperature')}</label>
                 <input
                   type="number"
                   min={0}
@@ -777,74 +777,74 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
                   step={0.1}
                   value={temperature}
                   onChange={(e) => setTemperature(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                 />
               </div>
               <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('agent.maxOutputTokens', 'Max output tokens')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.maxOutputTokens', 'Max output tokens')}</label>
                 <input
                   type="number"
                   min={64}
                   value={maxTokens}
                   onChange={(e) => setMaxTokens(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                 />
               </div>
               <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('agent.tokenQuota', 'Token quota')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.tokenQuota', 'Token quota')}</label>
                 <input
                   type="number"
                   min={1}
                   value={tokenQuota}
                   onChange={(e) => setTokenQuota(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                 />
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('agent.safetyRules', 'Safety rules')}</label>
+                <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.safetyRules', 'Safety rules')}</label>
                 <textarea
                   value={safetyRules}
                   onChange={(e) => setSafetyRules(e.target.value)}
                   rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('create.quotaPeriodDays', 'Quota period days')}</label>
+                <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.quotaPeriodDays', 'Quota period days')}</label>
                 <input
                   type="number"
                   min={1}
                   value={quotaPeriodDays}
                   onChange={(e) => setQuotaPeriodDays(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                 />
               </div>
             </div>
 
-            <details className="rounded-lg border border-gray-200 p-4">
-              <summary className="cursor-pointer text-sm font-medium text-gray-800">{t('create.advancedArtifacts', 'Artifact Arthur advanced')}</summary>
+            <details className="rounded-lg border border-ink-200 p-4">
+              <summary className="cursor-pointer text-sm font-medium text-ink-900">{t('create.advancedArtifacts', 'Artifact Arthur advanced')}</summary>
               <div className="mt-4 grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('create.blueprintJson', 'Blueprint JSON')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.blueprintJson', 'Blueprint JSON')}</label>
                   <textarea
                     value={blueprintJson}
                     onChange={(e) => setBlueprintJson(e.target.value)}
                     placeholder="Kosongkan untuk dibuat otomatis dari konfigurasi."
                     rows={8}
-                    className="font-mono w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+                    className="font-mono w-full border border-ink-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-y"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('create.manualJson', 'Operating Manual / SOP JSON')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.manualJson', 'Operating Manual / SOP JSON')}</label>
                   <textarea
                     value={operatingManualJson}
                     onChange={(e) => setOperatingManualJson(e.target.value)}
                     placeholder="Kosongkan untuk dibuat otomatis sebagai tools_config.operating_manual."
                     rows={8}
-                    className="font-mono w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+                    className="font-mono w-full border border-ink-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-y"
                   />
                 </div>
               </div>
