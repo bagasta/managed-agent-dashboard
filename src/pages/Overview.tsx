@@ -6,7 +6,7 @@ import { useI18n } from '../i18n'
 
 function Stat({ k, v, sub }: { k: string; v: string; sub?: string }) {
   return (
-    <div className="surface p-5">
+    <div className="card-stat">
       <div className="text-xs text-ink-500">{k}</div>
       <div className="mt-2 text-3xl font-semibold tracking-tight">{v}</div>
       {sub && <div className="mt-1 text-xs text-ink-400">{sub}</div>}
@@ -35,7 +35,7 @@ export default function Overview({ user }: { user: User }) {
   const usagePct = tokensQuota > 0 ? Math.min(100, ((tokensQuota - tokensLeft) / tokensQuota) * 100) : 0
 
   return (
-    <div className="flex-1 overflow-y-auto px-8 py-8">
+    <div className="page">
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">{language === 'en' ? `Hello, ${display}.` : `Halo, ${display}.`}</h1>
@@ -71,7 +71,7 @@ export default function Overview({ user }: { user: User }) {
             <span>{usagePct.toFixed(0)}%</span>
           </div>
           <div className="mt-2 h-2 rounded-full bg-ink-100 overflow-hidden">
-            <div className="h-full bg-ink-900" style={{ width: `${usagePct}%` }} />
+            <div className="h-full bg-gradient-to-r from-brand-500 to-brand-600" style={{ width: `${usagePct}%` }} />
           </div>
         </div>
       )}
@@ -90,8 +90,9 @@ export default function Overview({ user }: { user: User }) {
             </div>
           ))}
           {agents.length === 0 && (
-            <div className="surface p-8 text-center text-sm text-ink-500 md:col-span-2">
-              {t('overview.empty', 'Belum ada staf AI.')} <Link to="/app/arthur" className="text-ink-900 underline">{t('overview.startArthur', 'Mulai dengan Arthur')}</Link>.
+            <div className="surface p-10 text-center md:col-span-2">
+              <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-ink-100" />
+              <p className="text-sm text-ink-500">{t('overview.empty', 'Belum ada staf AI.')} <Link to="/app/arthur" className="text-ink-900 underline">{t('overview.startArthur', 'Mulai dengan Arthur')}</Link>.</p>
             </div>
           )}
         </div>
