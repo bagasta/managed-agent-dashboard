@@ -1,19 +1,30 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import type { User } from '../types'
+import { useI18n } from '../i18n'
 
 const NAV_WORKSPACE = [
-  { to: '/app', label: 'Overview', end: true },
-  { to: '/app/agents', label: 'AI Staff' },
-  { to: '/app/analytics', label: 'Analytics' },
+  { to: '/app', labelKey: 'nav.overview', fallback: 'Overview', end: true },
+  { to: '/app/agents', labelKey: 'nav.aiStaff', fallback: 'AI Staff' },
+  { to: '/app/analytics', labelKey: 'nav.analytics', fallback: 'Analytics' },
 ]
 const NAV_TOOLS = [
-  { to: '/app/arthur', label: 'Arthur', sub: 'Agent Builder' },
+  { to: '/app/arthur', labelKey: 'Arthur', fallback: 'Arthur', subKey: 'nav.agentBuilder', subFallback: 'Agent Builder' },
 ]
 const NAV_ACCOUNT = [
-  { to: '/app/profile', label: 'Profile' },
+  { to: '/app/profile', labelKey: 'nav.profile', fallback: 'Profile' },
 ]
 
-function Group({ title, items }: { title: string; items: { to: string; label: string; sub?: string; end?: boolean }[] }) {
+type NavItem = {
+  to: string
+  labelKey: string
+  fallback: string
+  subKey?: string
+  subFallback?: string
+  end?: boolean
+}
+
+function Group({ title, items }: { title: string; items: NavItem[] }) {
+  const { t } = useI18n()
   return (
     <div className="mb-6">
       <div className="px-3 mb-2 text-[11px] uppercase tracking-wider text-ink-400">{title}</div>
@@ -25,8 +36,8 @@ function Group({ title, items }: { title: string; items: { to: string; label: st
             end={it.end}
             className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
           >
-            <span className="flex-1">{it.label}</span>
-            {it.sub && <span className="text-[11px] text-ink-400">{it.sub}</span>}
+            <span className="flex-1">{t(it.labelKey, it.fallback)}</span>
+            {it.subKey && <span className="text-[11px] text-ink-400">{t(it.subKey, it.subFallback)}</span>}
           </NavLink>
         ))}
       </div>
@@ -36,6 +47,7 @@ function Group({ title, items }: { title: string; items: { to: string; label: st
 
 export default function Layout({ user, onLogout }: { user: User; onLogout: () => void }) {
   const nav = useNavigate()
+  const { language, setLanguage, t } = useI18n()
   const display = user.full_name || user.phone_number || user.email
   return (
     <div className="h-screen w-screen flex bg-ink-50">
@@ -45,11 +57,30 @@ export default function Layout({ user, onLogout }: { user: User; onLogout: () =>
           <span className="font-semibold tracking-tight">Clevio AI Staff</span>
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-5">
-          <Group title="Workspace" items={NAV_WORKSPACE} />
-          <Group title="Tools" items={NAV_TOOLS} />
-          <Group title="Account" items={NAV_ACCOUNT} />
+          <Group title={t('nav.workspace', 'Workspace')} items={NAV_WORKSPACE} />
+          <Group title={t('nav.tools', 'Tools')} items={NAV_TOOLS} />
+          <Group title={t('nav.account', 'Account')} items={NAV_ACCOUNT} />
         </div>
         <div className="px-4 py-4 border-t border-ink-100">
+          <div className="mb-4">
+            <div className="mb-2 text-[11px] uppercase tracking-wider text-ink-400">{t('lang.label', 'Bahasa')}</div>
+            <div className="grid grid-cols-2 rounded-full border border-ink-200 bg-ink-50 p-1">
+              <button
+                type="button"
+                onClick={() => setLanguage('id')}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${language === 'id' ? 'bg-white text-ink-900 shadow-sm' : 'text-ink-500'}`}
+              >
+                ID
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage('en')}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${language === 'en' ? 'bg-white text-ink-900 shadow-sm' : 'text-ink-500'}`}
+              >
+                EN
+              </button>
+            </div>
+          </div>
           <div className="text-sm truncate">{display}</div>
           {user.subscription && (
             <div className="mt-0.5 text-[11px] text-ink-500">{user.subscription.plan_label}</div>
@@ -58,7 +89,7 @@ export default function Layout({ user, onLogout }: { user: User; onLogout: () =>
             onClick={() => { onLogout(); nav('/') }}
             className="mt-2 text-xs text-ink-700 hover:text-ink-900"
           >
-            Log out
+            {t('nav.logout', 'Log out')}
           </button>
         </div>
       </aside>

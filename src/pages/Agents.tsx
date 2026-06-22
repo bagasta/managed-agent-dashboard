@@ -1,26 +1,39 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
-import type { Agent } from '../types'
+import type { Agent, User } from '../types'
+import { CreateAgentModal } from '../components/CreateAgentModal'
+import type { SimpleAgent } from '../api/agents'
+import { useI18n } from '../i18n'
 
-export default function Agents() {
+export default function Agents({ user }: { user: User }) {
+  const { t } = useI18n()
   const [agents, setAgents] = useState<Agent[]>([])
   const [err, setErr] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showCreate, setShowCreate] = useState(false)
+
+  const handleAgentCreated = (agent: SimpleAgent) => {
+    setAgents((prev) => [agent, ...prev])
+  }
+
   useEffect(() => {
-    api.listAgents().then(setAgents).catch((e) => setErr(String(e))).finally(() => setLoading(false))
-  }, [])
+    api.listAgents(user.external_id).then(setAgents).catch((e) => setErr(String(e))).finally(() => setLoading(false))
+  }, [user.external_id])
   return (
     <div className="flex-1 overflow-y-auto px-8 py-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">AI Staff</h1>
-          <p className="mt-1 text-sm text-ink-500">{agents.length} staf AI terdaftar</p>
+          <p className="mt-1 text-sm text-ink-500">{t('agents.count', '{count} staf AI terdaftar', { count: agents.length })}</p>
         </div>
-        <Link to="/app/arthur" className="btn-primary">Buat dengan Arthur</Link>
+        <div className="flex gap-2">
+          <button onClick={() => setShowCreate(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">{t('agents.createManual', '+ Buat Agent Manual')}</button>
+          <Link to="/app/arthur" className="btn-primary">{t('agents.createArthur', 'Buat dengan Arthur')}</Link>
+        </div>
       </div>
       {err && <div className="mt-6 text-sm text-red-600">{err}</div>}
-      {loading && <div className="mt-8 text-sm text-ink-500">Memuat…</div>}
+      {loading && <div className="mt-8 text-sm text-ink-500">{t('common.loading', 'Memuat...')}</div>}
       <div className="mt-8 grid md:grid-cols-2 gap-4">
         {agents.map((a) => {
           const usage = a.token_quota > 0 ? (a.tokens_used / a.token_quota) * 100 : 0
@@ -47,9 +60,15 @@ export default function Agents() {
           )
         })}
         {!loading && agents.length === 0 && !err && (
-          <div className="text-sm text-ink-500">Belum ada staf AI. Mulai dengan Arthur.</div>
+          <div className="text-sm text-ink-500">{t('agents.empty', 'Belum ada staf AI. Mulai dengan Arthur.')}</div>
         )}
       </div>
+      <CreateAgentModal
+        open={showCreate}
+        ownerExternalId={user.external_id}
+        onClose={() => setShowCreate(false)}
+        onCreated={handleAgentCreated}
+      />
     </div>
   )
 }
