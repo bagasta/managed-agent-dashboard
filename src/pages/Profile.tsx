@@ -14,7 +14,7 @@ export default function Profile({ user }: { user: User }) {
   const { t } = useI18n()
   const sub = user.subscription
   return (
-    <div className="flex-1 overflow-y-auto px-8 py-8">
+    <div className="page">
       <h1 className="text-2xl font-semibold tracking-tight">{t('nav.profile', 'Profile')}</h1>
       <p className="mt-1 text-sm text-ink-500">{t('profile.info', 'Informasi akun dan langganan.')}</p>
 
@@ -31,7 +31,10 @@ export default function Profile({ user }: { user: User }) {
           {sub ? (
             <>
               <Row k={t('profile.plan', 'Paket')} v={sub.plan_label} />
-              <Row k="Status" v={sub.status} />
+              <div className="flex justify-between py-3 border-b border-ink-100">
+                <span className="text-xs text-ink-500">Status</span>
+                <span className={sub.status === 'active' ? 'badge-success' : 'badge-warn'}>{sub.status}</span>
+              </div>
               <Row k={t('profile.maxAgents', 'Batas staf AI')} v={String(sub.max_agents)} />
               <Row k={t('agent.tokenQuota', 'Kuota token')} v={`${sub.tokens_remaining.toLocaleString('id-ID')} / ${sub.token_quota.toLocaleString('id-ID')}`} />
               <Row k={t('agent.activeUntil', 'Berakhir')} v={sub.expires_at ? new Date(sub.expires_at).toLocaleDateString('id-ID') : null} />

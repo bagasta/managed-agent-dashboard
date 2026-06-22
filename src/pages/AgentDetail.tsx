@@ -109,15 +109,15 @@ export default function AgentDetail({ user }: { user: User }) {
 
   if (!agent || !draft) {
     return (
-      <div className="flex-1 overflow-y-auto px-8 py-8">
-        {msg ? <div className="text-sm text-red-600">{msg.text}</div> : <div className="text-sm text-ink-500">{t('common.loading', 'Memuat...')}</div>}
+      <div className="page">
+        {msg ? <div className="text-sm text-red-600">{msg.text}</div> : <div className="skeleton h-24 mt-6" />}
       </div>
     )
   }
 
   if (!agentBelongsToUser(agent, user)) {
     return (
-      <div className="flex-1 overflow-y-auto px-8 py-8">
+      <div className="page">
         <div className="max-w-4xl mx-auto">
           <Link to="/app/agents" className="text-xs text-ink-500 hover:text-ink-900">{t('common.back', 'Kembali')} AI Staff</Link>
           <div className="surface p-6 mt-4">
