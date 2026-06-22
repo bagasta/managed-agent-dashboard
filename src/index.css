@@ -74,7 +74,7 @@
   }
   .badge-success { @apply badge bg-emerald-50 text-emerald-700; }
   .badge-warn { @apply badge bg-amber-50 text-amber-700; }
-  .badge-neutral { @apply badge bg-ink-100 text-ink-600; }
+  .badge-neutral { @apply badge bg-ink-100 text-ink-500; }
   .skeleton {
     @apply relative overflow-hidden rounded-xl bg-ink-100;
   }
