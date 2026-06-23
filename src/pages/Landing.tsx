@@ -25,8 +25,8 @@ const COPY: Record<Lang, LangCopy> = {
     nav: { solusi: 'Solusi', cara: 'Cara kerja', harga: 'Harga', bantuan: 'Bantuan', masuk: 'Masuk' },
     hero: {
       eyebrow: 'Clevio AI Staff',
-      title1: 'Asisten AI di',
-      title2: 'WhatsApp Anda.',
+      title1: 'Clevio AI Staff',
+      title2: 'untuk WhatsApp Anda.',
       sub: 'Menjawab pelanggan, mengatur jadwal, mengurus hal kecil — sepanjang hari. Siap dalam lima menit.',
       cta: 'Mulai gratis',
       learn: 'Pelajari lebih lanjut',
@@ -143,8 +143,8 @@ const COPY: Record<Lang, LangCopy> = {
     nav: { solusi: 'Solutions', cara: 'How it works', harga: 'Pricing', bantuan: 'Help', masuk: 'Sign in' },
     hero: {
       eyebrow: 'Clevio AI Staff',
-      title1: 'AI assistant for',
-      title2: 'your WhatsApp.',
+      title1: 'Clevio AI Staff',
+      title2: 'for your WhatsApp.',
       sub: 'Replies to customers, schedules appointments, handles small tasks — all day long. Ready in five minutes.',
       cta: 'Start free',
       learn: 'Learn more',
