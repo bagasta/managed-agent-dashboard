@@ -3,7 +3,7 @@ import LegalLayout from '../components/LegalLayout'
 
 export default function Terms() {
   return (
-    <LegalLayout title="Terms & Conditions" lastUpdated="June 22, 2026">
+    <LegalLayout title="Terms & Conditions" lastUpdated="June 23, 2026">
       <h2>Acceptance of Terms</h2>
       <p>
         By accessing or using Clevio AI Staff (the "Service"), you agree to be bound by these Terms &amp; Conditions.
@@ -56,7 +56,7 @@ export default function Terms() {
       <h2>Intellectual Property</h2>
       <p>
         All content, branding, software, and technology that make up Clevio AI Staff are owned by or licensed to{' '}
-        <strong>[Company legal name]</strong>. You are granted a limited, non-exclusive, non-transferable licence to
+        <strong>PT Clevio</strong>. You are granted a limited, non-exclusive, non-transferable licence to
         use the Service for its intended purpose. You retain ownership of any content you create or upload.
       </p>
 
@@ -70,7 +70,7 @@ export default function Terms() {
 
       <h2>Limitation of Liability</h2>
       <p>
-        TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, <strong>[Company legal name]</strong> AND ITS OFFICERS,
+        TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, <strong>PT Clevio</strong> AND ITS OFFICERS,
         EMPLOYEES, AND AGENTS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE
         DAMAGES ARISING OUT OF OR RELATED TO YOUR USE OF THE SERVICE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
         DAMAGES. OUR TOTAL AGGREGATE LIABILITY SHALL NOT EXCEED THE AMOUNT YOU PAID FOR THE SERVICE IN THE TWELVE
@@ -81,15 +81,14 @@ export default function Terms() {
       <p>
         We may suspend or terminate your access to the Service at any time, with or without cause, with reasonable
         notice where practicable. You may terminate your account at any time by contacting us at{' '}
-        <a href="mailto:aiagronomists@gmail.com">aiagronomists@gmail.com</a>. Upon termination, your right to use
+        <a href="mailto:chiefaiofficer1@gmail.com">chiefaiofficer1@gmail.com</a>. Upon termination, your right to use
         the Service ceases immediately.
       </p>
 
       <h2>Governing Law</h2>
       <p>
-        These Terms are governed by and construed in accordance with the laws of <strong>[jurisdiction]</strong>,
-        without regard to conflict-of-law principles. Any disputes shall be resolved exclusively in the courts of{' '}
-        <strong>[jurisdiction]</strong>.
+        These Terms are governed by and construed in accordance with the laws of the Republic of Indonesia, without
+        regard to conflict-of-law principles.
       </p>
 
       <h2>Changes to Terms</h2>
@@ -102,7 +101,7 @@ export default function Terms() {
       <h2>Contact</h2>
       <p>
         For questions about these Terms, contact us at{' '}
-        <a href="mailto:aiagronomists@gmail.com">aiagronomists@gmail.com</a>.
+        <a href="mailto:chiefaiofficer1@gmail.com">chiefaiofficer1@gmail.com</a>.
       </p>
     </LegalLayout>
   )

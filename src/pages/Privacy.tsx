@@ -2,20 +2,25 @@ import LegalLayout from '../components/LegalLayout'
 
 export default function Privacy() {
   return (
-    <LegalLayout title="Privacy Policy" lastUpdated="June 22, 2026">
+    <LegalLayout title="Privacy Policy" lastUpdated="June 23, 2026">
       <h2>Introduction</h2>
       <p>
-        Clevio AI Staff ("we", "our", or "us") is operated by <strong>[Company legal name]</strong>, located at{' '}
-        <strong>[Address]</strong>. This Privacy Policy explains how we collect, use, disclose, and safeguard your
-        information when you use our service. If you have questions, contact us at{' '}
-        <a href="mailto:aiagronomists@gmail.com">aiagronomists@gmail.com</a>.
+        Clevio AI Staff ("we", "our", or "us") is operated by <strong>PT Clevio</strong>, located at{' '}
+        <strong>
+          Bukit Golf Cibubur, Riverside 1 Blok A7/25, Gunung Putri, Bojong Nangka, Kec. Gn. Putri,
+          Kabupaten Bogor, Jawa Barat 16963, Indonesia
+        </strong>
+        . This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our
+        service. If you have questions, contact us at{' '}
+        <a href="mailto:chiefaiofficer1@gmail.com">chiefaiofficer1@gmail.com</a>.
       </p>
 
       <h2>Information We Collect</h2>
       <p>We collect the following categories of information:</p>
       <ul>
         <li>
-          <strong>Account information:</strong> name, email address, and profile picture obtained via Google Sign-In.
+          <strong>Account information:</strong> phone number, name, email address, and profile information you provide
+          or connect to the Service.
         </li>
         <li>
           <strong>Contact details:</strong> WhatsApp number if provided for agent communication.
@@ -36,7 +41,7 @@ export default function Privacy() {
       </p>
       <ul>
         <li>
-          <strong>Identity (email, profile):</strong> sign-in and account identification.
+          <strong>Identity (email, profile):</strong> account identification and connection status.
         </li>
         <li>
           <strong>Gmail (send, read):</strong> send and read emails on your instruction.
@@ -48,25 +53,10 @@ export default function Privacy() {
           <strong>Google Calendar (events):</strong> create and manage calendar events.
         </li>
         <li>
-          <strong>Google Sheets:</strong> read and write spreadsheet data.
-        </li>
-        <li>
           <strong>Google Docs:</strong> create and edit documents.
         </li>
         <li>
           <strong>Google Forms:</strong> create forms and read responses.
-        </li>
-        <li>
-          <strong>Google Slides:</strong> create presentations.
-        </li>
-        <li>
-          <strong>Google Tasks:</strong> manage tasks.
-        </li>
-        <li>
-          <strong>Google Contacts:</strong> read contacts.
-        </li>
-        <li>
-          <strong>Google Chat:</strong> send and manage chat messages and spaces.
         </li>
       </ul>
 
@@ -98,13 +88,14 @@ export default function Privacy() {
       <p>
         Your data is stored on secure servers. We retain your data for as long as your account is active or as needed
         to provide the service. OAuth tokens are stored encrypted and are only used to fulfill your explicit
-        instructions. We do not retain Google Workspace content beyond the time needed to complete each task.
+        instructions. We do not retain Google Workspace content beyond the time needed to complete each task unless
+        you ask the Service to save an output or record for later use.
       </p>
 
       <h2>Data Deletion</h2>
       <p>
         You may request deletion of your account and associated data at any time by emailing{' '}
-        <a href="mailto:aiagronomists@gmail.com">aiagronomists@gmail.com</a>. We will process your request within 30
+        <a href="mailto:chiefaiofficer1@gmail.com">chiefaiofficer1@gmail.com</a>. We will process your request within 30
         days. You may also revoke Google permissions at any time from your{' '}
         <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener noreferrer">
           Google Account settings
@@ -137,7 +128,7 @@ export default function Privacy() {
       <p>
         Depending on your jurisdiction, you may have rights to access, correct, or delete your personal data, object
         to or restrict processing, and data portability. To exercise these rights, contact us at{' '}
-        <a href="mailto:aiagronomists@gmail.com">aiagronomists@gmail.com</a>.
+        <a href="mailto:chiefaiofficer1@gmail.com">chiefaiofficer1@gmail.com</a>.
       </p>
 
       <h2>Children's Privacy</h2>
@@ -156,7 +147,7 @@ export default function Privacy() {
       <h2>Contact</h2>
       <p>
         For privacy-related questions or requests, contact us at{' '}
-        <a href="mailto:aiagronomists@gmail.com">aiagronomists@gmail.com</a>.
+        <a href="mailto:chiefaiofficer1@gmail.com">chiefaiofficer1@gmail.com</a>.
       </p>
     </LegalLayout>
   )
