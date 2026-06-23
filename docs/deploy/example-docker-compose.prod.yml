@@ -1,0 +1,140 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
+    env_file:
+      - .env.prod
+    environment:
+      WA_SERVICE_URL: http://wa-service:8080
+      WA_DEV_SERVICE_URL: http://wa-dev-service:8081
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - /tmp/agent-sandboxes:/tmp/agent-sandboxes
+      - /var/run/docker.sock:/var/run/docker.sock
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - internal
+      - root_default
+    depends_on:
+      redis:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.managed-agents.rule=Host(`managed-agent.chiefaiofficer.id`)"
+      - "traefik.http.routers.managed-agents.entrypoints=web,websecure"
+      - "traefik.http.routers.managed-agents.tls=true"
+      - "traefik.http.routers.managed-agents.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.managed-agents.loadbalancer.server.port=8000"
+      - "traefik.docker.network=root_default"
+
+  scheduler:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: python -m app.scheduler_worker
+    env_file:
+      - .env.prod
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - internal
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --save 60 1
+    volumes:
+      - redis_data:/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  wa-service:
+    build:
+      context: ../wa-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+      PYTHON_WEBHOOK_URL: http://api:8000/v1/channels/wa/incoming
+      WA_STORE_DIR: /data/wa-store
+    volumes:
+      - wa_store:/data/wa-store
+    networks:
+      - internal   # hanya akses internal, tidak expose ke internet langsung
+
+  wa-dev-service:
+    build:
+      context: ../wa-dev-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      PORT: "8081"
+      WA_DEV_STORE_DIR: /data/wa-dev-store
+      MAIN_API_URL: http://api:8000
+      CONNECTIONS_FILE: /data/wa-dev-store/connections.json
+    volumes:
+      - wa_dev_store:/data/wa-dev-store
+    networks:
+      - internal
+      - root_default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wa-dev.rule=Host(`managed-agent.chiefaiofficer.id`) && PathPrefix(`/wa-dev`)"
+      - "traefik.http.routers.wa-dev.entrypoints=web,websecure"
+      - "traefik.http.routers.wa-dev.tls=true"
+      - "traefik.http.routers.wa-dev.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.wa-dev.middlewares=wa-dev-strip"
+      - "traefik.http.middlewares.wa-dev-strip.stripprefix.prefixes=/wa-dev"
+      - "traefik.http.services.wa-dev.loadbalancer.server.port=8081"
+      - "traefik.docker.network=root_default"
+
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      # Pgbouncer needs to know where to route
+      DB_HOST: host.docker.internal
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 1000
+      DEFAULT_POOL_SIZE: 20
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - internal
+
+volumes:
+  wa_store:
+  wa_dev_store:
+  redis_data:       # persistent Redis data (survives restart)
+
+networks:
+  internal:
+    driver: bridge
+    # Network isolation: postgres tidak di-expose, hanya api yang perlu akses
+  root_default:
+    external: true

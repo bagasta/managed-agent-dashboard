@@ -1,0 +1,28 @@
+services:
+  chiefaiofficer-web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.prod
+      args:
+        # Leave empty for public production unless the backend has no safer auth path yet.
+        VITE_API_KEY: ${VITE_API_KEY:-}
+    image: chiefaiofficer-web:latest
+    restart: unless-stopped
+    environment:
+      API_UPSTREAM: ${API_UPSTREAM:-https://managed-agent.chiefaiofficer.id}
+      API_UPSTREAM_HOST: ${API_UPSTREAM_HOST:-managed-agent.chiefaiofficer.id}
+      NGINX_ENVSUBST_FILTER: "^(API_UPSTREAM|API_UPSTREAM_HOST)$"
+    networks:
+      - root_default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.chiefaiofficer-web.rule=Host(`chiefaiofficer.id`) || Host(`www.chiefaiofficer.id`)"
+      - "traefik.http.routers.chiefaiofficer-web.entrypoints=web,websecure"
+      - "traefik.http.routers.chiefaiofficer-web.tls=true"
+      - "traefik.http.routers.chiefaiofficer-web.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.chiefaiofficer-web.loadbalancer.server.port=80"
+      - "traefik.docker.network=root_default"
+
+networks:
+  root_default:
+    external: true
