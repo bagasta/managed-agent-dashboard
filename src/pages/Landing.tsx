@@ -24,7 +24,7 @@ const COPY: Record<Lang, LangCopy> = {
   id: {
     nav: { solusi: 'Solusi', cara: 'Cara kerja', harga: 'Harga', bantuan: 'Bantuan', masuk: 'Masuk' },
     hero: {
-      eyebrow: 'Diperkenalkan',
+      eyebrow: 'Clevio AI Staff',
       title1: 'Asisten AI di',
       title2: 'WhatsApp Anda.',
       sub: 'Menjawab pelanggan, mengatur jadwal, mengurus hal kecil — sepanjang hari. Siap dalam lima menit.',
@@ -99,7 +99,7 @@ const COPY: Record<Lang, LangCopy> = {
     },
     cta: { title: 'Mulai hari ini.', sub: 'Gratis untuk dicoba. Tanpa kartu kredit.', btn: 'Mulai sekarang' },
     footer: {
-      clevio: 'Clevio', dukungan: 'Dukungan', perusahaan: 'Perusahaan', legal: 'Legal',
+      clevio: 'Clevio AI Staff', dukungan: 'Dukungan', perusahaan: 'Perusahaan', legal: 'Legal',
       links: {
         solusi: 'Solusi', cara: 'Cara kerja', harga: 'Harga',
         faq: 'FAQ', kontak: 'Hubungi kami', status: 'Status sistem',
@@ -142,7 +142,7 @@ const COPY: Record<Lang, LangCopy> = {
   en: {
     nav: { solusi: 'Solutions', cara: 'How it works', harga: 'Pricing', bantuan: 'Help', masuk: 'Sign in' },
     hero: {
-      eyebrow: 'Introducing',
+      eyebrow: 'Clevio AI Staff',
       title1: 'AI assistant for',
       title2: 'your WhatsApp.',
       sub: 'Replies to customers, schedules appointments, handles small tasks — all day long. Ready in five minutes.',
@@ -217,7 +217,7 @@ const COPY: Record<Lang, LangCopy> = {
     },
     cta: { title: 'Start today.', sub: 'Free to try. No credit card.', btn: 'Get started' },
     footer: {
-      clevio: 'Clevio', dukungan: 'Support', perusahaan: 'Company', legal: 'Legal',
+      clevio: 'Clevio AI Staff', dukungan: 'Support', perusahaan: 'Company', legal: 'Legal',
       links: {
         solusi: 'Solutions', cara: 'How it works', harga: 'Pricing',
         faq: 'FAQ', kontak: 'Contact us', status: 'System status',
@@ -452,7 +452,7 @@ export default function Landing() {
         <div className="max-w-[1080px] mx-auto px-6 h-14 flex items-center justify-between">
           <Link to="/" className="text-[17px] font-semibold tracking-[-0.02em] flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#0071e3]" />
-            Clevio
+            Clevio AI Staff
           </Link>
           <div className="hidden md:flex items-center gap-8 text-[14px] text-ink-700">
             <a href="#solusi" className="hover:text-ink-900 transition-colors">{t.nav.solusi}</a>
@@ -852,7 +852,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="border-t border-ink-200 pt-6 flex flex-col md:flex-row items-center justify-between gap-2">
-            <div>© {new Date().getFullYear()} Clevio. {t.footer.copyright}</div>
+            <div>© {new Date().getFullYear()} Clevio AI Staff. {t.footer.copyright}</div>
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#0071e3]" />
               {t.footer.systems}
