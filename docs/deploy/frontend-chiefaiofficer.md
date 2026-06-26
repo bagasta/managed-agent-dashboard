@@ -30,6 +30,18 @@ Dengan mode ini, frontend tetap memanggil `/v1/...` di domain yang sama, lalu Ng
 - `deploy/docker-compose.prod.yml` — service frontend dengan label Traefik untuk `chiefaiofficer.id`.
 - `deploy/env.prod.example` — contoh env production.
 
+## Google OAuth Branding
+
+Untuk verifikasi Google Cloud Console, samakan branding OAuth dengan homepage publik:
+
+- **App name**: `Clevio AI Staff`
+- **Homepage URL**: `https://chiefaiofficer.id/`
+- **Privacy Policy URL**: `https://chiefaiofficer.id/privacy`
+- **Terms of Service URL**: `https://chiefaiofficer.id/terms`
+- **Authorized domain**: `chiefaiofficer.id`
+
+Jangan memakai nama lama seperti `Chief AI Officer`, `Managed Agent Platform`, atau nama project internal di field **App name** OAuth consent screen. Google reviewer membandingkan field itu dengan nama aplikasi yang terlihat di homepage.
+
 ## Cutover dari Website Lama
 
 1. SSH ke VPS.

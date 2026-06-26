@@ -852,7 +852,10 @@ export default function Landing() {
             </div>
           </div>
           <div className="border-t border-ink-200 pt-6 flex flex-col md:flex-row items-center justify-between gap-2">
-            <div>© {new Date().getFullYear()} Clevio AI Staff. {t.footer.copyright}</div>
+            <div className="text-center md:text-left">
+              <div>© {new Date().getFullYear()} Clevio AI Staff. {t.footer.copyright}</div>
+              <div className="mt-1 text-[12px] text-ink-400">Application name: Clevio AI Staff · Operator: PT Clevio</div>
+            </div>
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#0071e3]" />
               {t.footer.systems}

@@ -12,7 +12,7 @@ export default function Privacy() {
         </strong>
         . This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our
         service. If you have questions, contact us at{' '}
-        <a href="mailto:chiefaiofficer1@gmail.com">chiefaiofficer1@gmail.com</a>.
+        <a href="mailto:aiagronomists@gmail.com">aiagronomists@gmail.com</a>.
       </p>
 
       <h2>Information We Collect</h2>
@@ -95,7 +95,7 @@ export default function Privacy() {
       <h2>Data Deletion</h2>
       <p>
         You may request deletion of your account and associated data at any time by emailing{' '}
-        <a href="mailto:chiefaiofficer1@gmail.com">chiefaiofficer1@gmail.com</a>. We will process your request within 30
+        <a href="mailto:aiagronomists@gmail.com">aiagronomists@gmail.com</a>. We will process your request within 30
         days. You may also revoke Google permissions at any time from your{' '}
         <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener noreferrer">
           Google Account settings
@@ -128,7 +128,7 @@ export default function Privacy() {
       <p>
         Depending on your jurisdiction, you may have rights to access, correct, or delete your personal data, object
         to or restrict processing, and data portability. To exercise these rights, contact us at{' '}
-        <a href="mailto:chiefaiofficer1@gmail.com">chiefaiofficer1@gmail.com</a>.
+        <a href="mailto:aiagronomists@gmail.com">aiagronomists@gmail.com</a>.
       </p>
 
       <h2>Children's Privacy</h2>
@@ -147,7 +147,7 @@ export default function Privacy() {
       <h2>Contact</h2>
       <p>
         For privacy-related questions or requests, contact us at{' '}
-        <a href="mailto:chiefaiofficer1@gmail.com">chiefaiofficer1@gmail.com</a>.
+        <a href="mailto:aiagronomists@gmail.com">aiagronomists@gmail.com</a>.
       </p>
     </LegalLayout>
   )

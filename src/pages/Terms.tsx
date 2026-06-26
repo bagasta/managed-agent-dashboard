@@ -81,7 +81,7 @@ export default function Terms() {
       <p>
         We may suspend or terminate your access to the Service at any time, with or without cause, with reasonable
         notice where practicable. You may terminate your account at any time by contacting us at{' '}
-        <a href="mailto:chiefaiofficer1@gmail.com">chiefaiofficer1@gmail.com</a>. Upon termination, your right to use
+        <a href="mailto:aiagronomists@gmail.com">aiagronomists@gmail.com</a>. Upon termination, your right to use
         the Service ceases immediately.
       </p>
 
@@ -101,7 +101,7 @@ export default function Terms() {
       <h2>Contact</h2>
       <p>
         For questions about these Terms, contact us at{' '}
-        <a href="mailto:chiefaiofficer1@gmail.com">chiefaiofficer1@gmail.com</a>.
+        <a href="mailto:aiagronomists@gmail.com">aiagronomists@gmail.com</a>.
       </p>
     </LegalLayout>
   )

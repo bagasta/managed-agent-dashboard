@@ -30,6 +30,7 @@ export default function LegalLayout({
           <Link to="/privacy" className="hover:text-ink-700">Privacy Policy</Link>
           <Link to="/terms" className="hover:text-ink-700">Terms &amp; Conditions</Link>
         </footer>
+        <p className="mt-4 text-xs text-ink-400">Application name: Clevio AI Staff · Operator: PT Clevio</p>
       </main>
     </div>
   )
