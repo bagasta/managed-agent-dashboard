@@ -151,6 +151,15 @@ function cloneToolsConfig(config: ToolsConfig): ToolsConfig {
   return JSON.parse(JSON.stringify(config)) as ToolsConfig
 }
 
+function buildToolsSnapshot(config: ToolsConfig): ToolsConfig {
+  const snapshot: Record<string, unknown> = {}
+  Object.entries(config).forEach(([key, value]) => {
+    if (key === 'agent_blueprint' || key === 'operating_manual') return
+    snapshot[key] = value
+  })
+  return cloneToolsConfig(snapshot as ToolsConfig)
+}
+
 function parseList(value: string) {
   return value
     .split(/[\n,]+/)
@@ -213,7 +222,7 @@ function buildBlueprint(params: {
     domain: params.domain || 'generic',
     channel: params.channelType,
     file_capability: params.fileCapability,
-    tools_config: params.toolsConfig,
+    tools_config: buildToolsSnapshot(params.toolsConfig),
     workflows: [
       {
         workflow_id: 'main_request',
@@ -360,6 +369,7 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
   const [selectedTools, setSelectedTools] = useState<string[]>([])
   const [blueprintJson, setBlueprintJson] = useState('')
   const [operatingManualJson, setOperatingManualJson] = useState('')
+  const [showAdvanced, setShowAdvanced] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -458,6 +468,7 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
       const nextTools = selectedTools.length > 0
         ? configureGoogleWorkspaceTools(baseTools, selectedTools)
         : baseTools
+      const requestTools = cloneToolsConfig(nextTools)
 
       const finalInstructions = instructions.trim() || buildInstructions({
         name: name.trim(),
@@ -465,7 +476,7 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
         businessContext: businessContext.trim(),
         domain: domain.trim(),
         channelType,
-        toolsConfig: nextTools,
+        toolsConfig: requestTools,
         operatorName: operatorName.trim(),
       })
       const operatorList = [
@@ -481,15 +492,15 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
         instructions: finalInstructions,
         model,
         temperature: Number(temperature || preset.defaultTemperature),
-        toolsConfig: nextTools,
-        sandboxConfig: nextTools.sandbox ? { memory: sandboxMemory, cpu: sandboxCpu } : {},
+        toolsConfig: requestTools,
+        sandboxConfig: requestTools.sandbox ? { memory: sandboxMemory, cpu: sandboxCpu } : {},
         safetyPolicy: {
           rules: parseList(safetyRules),
           max_output_length: 4000,
           launch_source: 'dashboard_manual',
           preset_id: presetId,
         },
-        escalationConfig: nextTools.escalation
+        escalationConfig: requestTools.escalation
           ? {
               channel_type: escalationChannel,
               operator_phone: operatorPhone.trim(),
@@ -524,6 +535,7 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
       setOperatorName('')
       setBlueprintJson('')
       setOperatingManualJson('')
+      setShowAdvanced(false)
       setToolsConfig(cloneToolsConfig(DEFAULT_TOOLS_CONFIG))
       setSelectedTools([])
       onClose()
@@ -536,7 +548,7 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
 
   return (
     <div className="fixed inset-0 z-50 bg-ink-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="surface w-full max-w-lg p-0 overflow-hidden">
+      <div className="surface w-full max-w-2xl p-0 overflow-hidden">
         <div className="px-6 py-4 border-b border-ink-100 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-ink-900">{t('create.title', 'Buat Agent Manual')}</h2>
           <button
@@ -589,27 +601,16 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.agentName', 'Nama Agent')} *</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Contoh: Akademi Juara CS"
-                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.domain', 'Domain')}</label>
-                <input
-                  value={domain}
-                  onChange={(e) => setDomain(e.target.value)}
-                  placeholder="education, ecommerce, travel, clinic_wellness"
-                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.agentName', 'Nama Agent')} *</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Contoh: Akademi Juara CS"
+                className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
+                required
+              />
             </div>
 
             <div>
@@ -634,95 +635,14 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.runtimeInstructions', 'Instruksi runtime')}</label>
-              <textarea
-                value={instructions}
-                onChange={(e) => setInstructions(e.target.value)}
-                placeholder="Kosongkan untuk dibuat otomatis dari konteks di atas."
-                rows={6}
-                className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-y"
-              />
-            </div>
-
-            <div className="rounded-lg border border-ink-200 p-4">
-              <div className="text-sm font-medium text-ink-900 mb-3">{t('create.runtimeCapabilities', 'Kemampuan runtime')}</div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {[
-                  ['memory', 'Memory percakapan'],
-                  ['skills', 'Skills'],
-                  ['escalation', 'Eskalasi ke operator'],
-                  ['scheduler', 'Jadwal & reminder'],
-                  ['rag', 'Dokumen/RAG'],
-                  ['http', 'Integrasi HTTP'],
-                  ['tavily', 'Web search'],
-                  ['sandbox', 'Sandbox kode/file'],
-                  ['tool_creator', 'Tool creator'],
-                  ['whatsapp_media', 'Media WhatsApp'],
-                  ['wa_agent_manager', 'Kelola agent WA'],
-                ].map(([key, label]) => (
-                  <label key={key} className="flex items-center gap-2 rounded-lg border border-ink-100 px-3 py-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={Boolean((toolsConfig as Record<string, unknown>)[key])}
-                      onChange={(e) => setTool(key as keyof ToolsConfig, e.target.checked)}
-                    />
-                    <span>{label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <McpToolSelector selected={selectedTools} onChange={setSelectedTools} />
-
-            {selectedTools.length > 0 && (
-              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                {t('create.googleNotice', 'Agent akan dibuat dengan MCP Google Workspace aktif. Setelah dibuat, buka detail agent untuk login OAuth Google dengan akun yang ingin dipakai.')}
-              </div>
-            )}
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.operatorIds', 'Operator IDs')}</label>
-                <textarea
-                  value={operatorIds}
-                  onChange={(e) => setOperatorIds(e.target.value)}
-                  placeholder="+62811..., satu per baris atau pisahkan koma"
-                  rows={3}
-                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.allowedSenders', 'Allowed Senders')}</label>
-                <textarea
-                  value={allowedSenders}
-                  onChange={(e) => setAllowedSenders(e.target.value)}
-                  placeholder="Kosong = semua user boleh chat"
-                  rows={3}
-                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-none"
-                />
-              </div>
-            </div>
-
             {toolsConfig.escalation && (
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.escalationChannel', 'Channel eskalasi')}</label>
-                  <select
-                    value={escalationChannel}
-                    onChange={(e) => setEscalationChannel(e.target.value)}
-                    className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
-                  >
-                    <option value="whatsapp">WhatsApp</option>
-                    <option value="telegram">Telegram</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.operatorPhone', 'Nomor/ID operator')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.operatorPhone', 'Nomor operator')}</label>
                   <input
                     value={operatorPhone}
                     onChange={(e) => setOperatorPhone(e.target.value)}
-                    placeholder="+62811..."
+                    placeholder="Opsional, contoh: +62811..."
                     className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                   />
                 </div>
@@ -738,117 +658,237 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
               </div>
             )}
 
-            {toolsConfig.sandbox && (
-              <div className="grid md:grid-cols-2 gap-4">
+            <details open={selectedTools.length > 0 || undefined} className="rounded-lg border border-ink-200 p-4">
+              <summary className="cursor-pointer text-sm font-medium text-ink-900">
+                {selectedTools.length > 0
+                  ? `Google Workspace (${selectedTools.length})`
+                  : t('create.googleOptional', 'Google Workspace opsional')}
+              </summary>
+              <div className="mt-4">
+                <McpToolSelector selected={selectedTools} onChange={setSelectedTools} />
+                {selectedTools.length > 0 && (
+                  <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                    {t('create.googleNotice', 'Agent akan dibuat dengan MCP Google Workspace aktif. Setelah dibuat, buka detail agent untuk login OAuth Google dengan akun yang ingin dipakai.')}
+                  </div>
+                )}
+              </div>
+            </details>
+
+            <div className="flex rounded-lg border border-ink-200 bg-ink-50 p-1">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(false)}
+                className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${!showAdvanced ? 'bg-white text-ink-900 shadow-sm' : 'text-ink-500 hover:text-ink-900'}`}
+              >
+                {t('create.quickSetup', 'Setup cepat')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(true)}
+                className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${showAdvanced ? 'bg-white text-ink-900 shadow-sm' : 'text-ink-500 hover:text-ink-900'}`}
+              >
+                {t('create.advancedSettings', 'Pengaturan lanjutan')}
+              </button>
+            </div>
+
+            {showAdvanced && (
+              <div className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.sandboxMemory', 'Sandbox memory')}</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.domain', 'Domain')}</label>
                   <input
-                    value={sandboxMemory}
-                    onChange={(e) => setSandboxMemory(e.target.value)}
+                    value={domain}
+                    onChange={(e) => setDomain(e.target.value)}
+                    placeholder="education, ecommerce, travel, clinic_wellness"
                     className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
                   />
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.sandboxCpu', 'Sandbox CPU')}</label>
-                  <input
-                    value={sandboxCpu}
-                    onChange={(e) => setSandboxCpu(e.target.value)}
-                    className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.runtimeInstructions', 'Instruksi runtime')}</label>
+                  <textarea
+                    value={instructions}
+                    onChange={(e) => setInstructions(e.target.value)}
+                    placeholder="Kosongkan untuk dibuat otomatis dari konteks di atas."
+                    rows={5}
+                    className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-y"
                   />
+                </div>
+
+                <div className="rounded-lg border border-ink-200 p-4">
+                  <div className="text-sm font-medium text-ink-900 mb-3">{t('create.runtimeCapabilities', 'Kemampuan runtime')}</div>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {[
+                      ['memory', 'Memory percakapan'],
+                      ['skills', 'Skills'],
+                      ['escalation', 'Eskalasi ke operator'],
+                      ['scheduler', 'Jadwal & reminder'],
+                      ['rag', 'Dokumen/RAG'],
+                      ['http', 'Integrasi HTTP'],
+                      ['tavily', 'Web search'],
+                      ['sandbox', 'Sandbox kode/file'],
+                      ['tool_creator', 'Tool creator'],
+                      ['whatsapp_media', 'Media WhatsApp'],
+                      ['wa_agent_manager', 'Kelola agent WA'],
+                    ].map(([key, label]) => (
+                      <label key={key} className="flex items-center gap-2 rounded-lg border border-ink-100 px-3 py-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={Boolean((toolsConfig as Record<string, unknown>)[key])}
+                          onChange={(e) => setTool(key as keyof ToolsConfig, e.target.checked)}
+                        />
+                        <span>{label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.operatorIds', 'Operator IDs')}</label>
+                    <textarea
+                      value={operatorIds}
+                      onChange={(e) => setOperatorIds(e.target.value)}
+                      placeholder="+62811..., satu per baris atau pisahkan koma"
+                      rows={3}
+                      className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.allowedSenders', 'Allowed Senders')}</label>
+                    <textarea
+                      value={allowedSenders}
+                      onChange={(e) => setAllowedSenders(e.target.value)}
+                      placeholder="Kosong = semua user boleh chat"
+                      rows={3}
+                      className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-none"
+                    />
+                  </div>
+                </div>
+
+                {toolsConfig.escalation && (
+                  <div>
+                    <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.escalationChannel', 'Channel eskalasi')}</label>
+                    <select
+                      value={escalationChannel}
+                      onChange={(e) => setEscalationChannel(e.target.value)}
+                      className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
+                    >
+                      <option value="whatsapp">WhatsApp</option>
+                      <option value="telegram">Telegram</option>
+                    </select>
+                  </div>
+                )}
+
+                {toolsConfig.sandbox && (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.sandboxMemory', 'Sandbox memory')}</label>
+                      <input
+                        value={sandboxMemory}
+                        onChange={(e) => setSandboxMemory(e.target.value)}
+                        className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.sandboxCpu', 'Sandbox CPU')}</label>
+                      <input
+                        value={sandboxCpu}
+                        onChange={(e) => setSandboxCpu(e.target.value)}
+                        className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid md:grid-cols-4 gap-4">
+                  <div>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.model', 'Model')}</label>
+                    <input
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                      className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
+                    />
+                  </div>
+                  <div>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.temperature', 'Temperature')}</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={2}
+                      step={0.1}
+                      value={temperature}
+                      onChange={(e) => setTemperature(e.target.value)}
+                      className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
+                    />
+                  </div>
+                  <div>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.maxOutputTokens', 'Max output tokens')}</label>
+                    <input
+                      type="number"
+                      min={64}
+                      value={maxTokens}
+                      onChange={(e) => setMaxTokens(e.target.value)}
+                      className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
+                    />
+                  </div>
+                  <div>
+                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.tokenQuota', 'Token quota')}</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={tokenQuota}
+                      onChange={(e) => setTokenQuota(e.target.value)}
+                      className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.safetyRules', 'Safety rules')}</label>
+                    <textarea
+                      value={safetyRules}
+                      onChange={(e) => setSafetyRules(e.target.value)}
+                      rows={3}
+                      className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.quotaPeriodDays', 'Quota period days')}</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={quotaPeriodDays}
+                      onChange={(e) => setQuotaPeriodDays(e.target.value)}
+                      className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.blueprintJson', 'Blueprint JSON')}</label>
+                    <textarea
+                      value={blueprintJson}
+                      onChange={(e) => setBlueprintJson(e.target.value)}
+                      placeholder="Kosongkan untuk dibuat otomatis dari konfigurasi."
+                      rows={8}
+                      className="font-mono w-full border border-ink-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-y"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.manualJson', 'Operating Manual / SOP JSON')}</label>
+                    <textarea
+                      value={operatingManualJson}
+                      onChange={(e) => setOperatingManualJson(e.target.value)}
+                      placeholder="Kosongkan untuk dibuat otomatis sebagai tools_config.operating_manual."
+                      rows={8}
+                      className="font-mono w-full border border-ink-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-y"
+                    />
+                  </div>
                 </div>
               </div>
             )}
-
-            <div className="grid md:grid-cols-4 gap-4">
-              <div>
-                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.model', 'Model')}</label>
-                <input
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
-                />
-              </div>
-              <div>
-                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.temperature', 'Temperature')}</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={2}
-                  step={0.1}
-                  value={temperature}
-                  onChange={(e) => setTemperature(e.target.value)}
-                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
-                />
-              </div>
-              <div>
-                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.maxOutputTokens', 'Max output tokens')}</label>
-                <input
-                  type="number"
-                  min={64}
-                  value={maxTokens}
-                  onChange={(e) => setMaxTokens(e.target.value)}
-                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
-                />
-              </div>
-              <div>
-                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.tokenQuota', 'Token quota')}</label>
-                <input
-                  type="number"
-                  min={1}
-                  value={tokenQuota}
-                  onChange={(e) => setTokenQuota(e.target.value)}
-                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
-                />
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-ink-700 mb-1">{t('agent.safetyRules', 'Safety rules')}</label>
-                <textarea
-                  value={safetyRules}
-                  onChange={(e) => setSafetyRules(e.target.value)}
-                  rows={3}
-                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.quotaPeriodDays', 'Quota period days')}</label>
-                <input
-                  type="number"
-                  min={1}
-                  value={quotaPeriodDays}
-                  onChange={(e) => setQuotaPeriodDays(e.target.value)}
-                  className="w-full border border-ink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600"
-                />
-              </div>
-            </div>
-
-            <details className="rounded-lg border border-ink-200 p-4">
-              <summary className="cursor-pointer text-sm font-medium text-ink-900">{t('create.advancedArtifacts', 'Artifact Arthur advanced')}</summary>
-              <div className="mt-4 grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.blueprintJson', 'Blueprint JSON')}</label>
-                  <textarea
-                    value={blueprintJson}
-                    onChange={(e) => setBlueprintJson(e.target.value)}
-                    placeholder="Kosongkan untuk dibuat otomatis dari konfigurasi."
-                    rows={8}
-                    className="font-mono w-full border border-ink-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-y"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-ink-700 mb-1">{t('create.manualJson', 'Operating Manual / SOP JSON')}</label>
-                  <textarea
-                    value={operatingManualJson}
-                    onChange={(e) => setOperatingManualJson(e.target.value)}
-                    placeholder="Kosongkan untuk dibuat otomatis sebagai tools_config.operating_manual."
-                    rows={8}
-                    className="font-mono w-full border border-ink-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-600 resize-y"
-                  />
-                </div>
-              </div>
-            </details>
 
             {error && <p className="text-sm text-red-600">{error}</p>}
           </form>
