@@ -3,6 +3,7 @@ import type { SimpleAgent } from '../api/agents'
 import { agentApi } from '../api/agents'
 import { configureGoogleWorkspaceTools } from '../api/googleWorkspace'
 import { useI18n } from '../i18n'
+import { oauthApi } from '../api/oauth'
 import type { ToolsConfig } from '../types'
 import { McpToolSelector } from './McpToolSelector'
 
@@ -372,6 +373,8 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [createdAgent, setCreatedAgent] = useState<SimpleAgent | null>(null)
+  const [loginLoading, setLoginLoading] = useState(false)
 
   if (!open) return null
 
@@ -414,6 +417,49 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
         whatsapp_media: true,
         subagents: { ...(typeof prev.subagents === 'object' ? prev.subagents : {}), enabled: true },
       }))
+    }
+  }
+
+  const resetForm = () => {
+    setPresetId('custom')
+    setName('')
+    setDescription('')
+    setBusinessContext('')
+    setDomain('')
+    setInstructions('')
+    setModel(DEFAULT_MODEL)
+    setTemperature('0.7')
+    setMaxTokens('1024')
+    setTokenQuota('4000000')
+    setQuotaPeriodDays('30')
+    setChannelType('whatsapp')
+    setFileCapability('text_only')
+    setOperatorIds('')
+    setAllowedSenders('')
+    setOperatorPhone('')
+    setOperatorName('')
+    setBlueprintJson('')
+    setOperatingManualJson('')
+    setShowAdvanced(false)
+    setToolsConfig(cloneToolsConfig(DEFAULT_TOOLS_CONFIG))
+    setSelectedTools([])
+    setCreatedAgent(null)
+    setError(null)
+  }
+
+  const handleSkipLogin = () => {
+    resetForm()
+    onClose()
+  }
+
+  const handleLoginNow = async () => {
+    if (!createdAgent) return
+    setLoginLoading(true)
+    try {
+      await oauthApi.startConnect(createdAgent.id, ownerExternalId, selectedTools)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Gagal memulai login Google')
+      setLoginLoading(false)
     }
   }
 
@@ -516,34 +562,63 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
         ownerExternalId,
       })
       onCreated(agent)
-      setPresetId('custom')
-      setName('')
-      setDescription('')
-      setBusinessContext('')
-      setDomain('')
-      setInstructions('')
-      setModel(DEFAULT_MODEL)
-      setTemperature('0.7')
-      setMaxTokens('1024')
-      setTokenQuota('4000000')
-      setQuotaPeriodDays('30')
-      setChannelType('whatsapp')
-      setFileCapability('text_only')
-      setOperatorIds('')
-      setAllowedSenders('')
-      setOperatorPhone('')
-      setOperatorName('')
-      setBlueprintJson('')
-      setOperatingManualJson('')
-      setShowAdvanced(false)
-      setToolsConfig(cloneToolsConfig(DEFAULT_TOOLS_CONFIG))
-      setSelectedTools([])
+      if (selectedTools.length > 0) {
+        setCreatedAgent(agent)
+        return
+      }
+      resetForm()
       onClose()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal membuat agent')
     } finally {
       setLoading(false)
     }
+  }
+
+  if (createdAgent) {
+    return (
+      <div className="fixed inset-0 z-50 bg-ink-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="surface w-full max-w-md p-0 overflow-hidden">
+          <div className="px-6 py-4 border-b border-ink-100">
+            <h2 className="text-lg font-semibold text-ink-900">{t('create.agentCreated', 'Agent berhasil dibuat!')}</h2>
+          </div>
+          <div className="px-6 py-6 space-y-4">
+            <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
+              <span className="text-emerald-600 text-xl">✓</span>
+              <div>
+                <div className="text-sm font-semibold text-emerald-800">{createdAgent.name}</div>
+                <div className="text-xs text-emerald-700">{t('create.agentReadyToLogin', 'Agent siap, perlu login Google untuk mengaktifkan tools.')}</div>
+              </div>
+            </div>
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800 space-y-1">
+              <div className="font-semibold">{t('create.googleLoginRequired', 'Login Google diperlukan')}</div>
+              <div>{t('create.googleLoginNotice', 'Anda akan diarahkan ke halaman Google untuk memberikan izin akses. Setelah login, Anda akan dikembalikan ke dashboard.')}</div>
+            </div>
+            <div className="text-xs text-ink-500">
+              {t('create.selectedToolsCount', '{count} Google tool dipilih:', { count: String(selectedTools.length) })} {selectedTools.join(', ')}
+            </div>
+            {error && <p className="text-sm text-red-600">{error}</p>}
+          </div>
+          <div className="px-6 py-4 border-t border-ink-100 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={handleSkipLogin}
+              className="border border-ink-200 text-ink-700 rounded-lg px-4 py-2 text-sm hover:bg-ink-50"
+            >
+              {t('create.loginLater', 'Nanti saja')}
+            </button>
+            <button
+              type="button"
+              onClick={handleLoginNow}
+              disabled={loginLoading}
+              className="bg-brand-600 text-white rounded-lg px-4 py-2 text-sm hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loginLoading ? t('create.redirecting', 'Mengalihkan...') : t('create.loginNow', 'Login Google sekarang')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -667,8 +742,8 @@ export function CreateAgentModal({ open, ownerExternalId, onClose, onCreated }: 
               <div className="mt-4">
                 <McpToolSelector selected={selectedTools} onChange={setSelectedTools} />
                 {selectedTools.length > 0 && (
-                  <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                    {t('create.googleNotice', 'Agent akan dibuat dengan MCP Google Workspace aktif. Setelah dibuat, buka detail agent untuk login OAuth Google dengan akun yang ingin dipakai.')}
+                  <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800">
+                    {t('create.googleNotice', 'Setelah agent dibuat, Anda akan diminta login Google untuk mengaktifkan tools ini.')}
                   </div>
                 )}
               </div>
