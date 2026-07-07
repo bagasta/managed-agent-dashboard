@@ -11,6 +11,8 @@ import Profile from './pages/Profile'
 import Arthur from './pages/Arthur'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
+import PaymentBridge from './pages/PaymentBridge'
+import PaymentReturn from './pages/PaymentReturn'
 import type { User } from './types'
 import { LanguageProvider } from './i18n'
 
@@ -51,6 +53,8 @@ export default function App() {
           <Route path="arthur" element={<Arthur user={user!} />} />
           <Route path="profile" element={<Profile user={user!} />} />
         </Route>
+        <Route path="/pay" element={<PaymentBridge />} />
+        <Route path="/pay/return" element={<PaymentReturn />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="*" element={<Navigate to="/" replace />} />

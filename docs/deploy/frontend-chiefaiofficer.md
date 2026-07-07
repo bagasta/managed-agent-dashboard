@@ -19,7 +19,14 @@ Default upstream API:
 ```env
 API_UPSTREAM=https://managed-agent.chiefaiofficer.id
 API_UPSTREAM_HOST=managed-agent.chiefaiofficer.id
+VITE_PAYMENT_WEBHOOK_URL=https://n8n.srv651498.hstgr.cloud/webhook/midtrans-aistaff
+VITE_PAYMENT_DYNAMIC_LINKS=false
+VITE_DOKU_PAYMENT_LINK_TIER_1=https://sandbox.doku.com/p-link/p/...
+VITE_DOKU_PAYMENT_LINK_TIER_2=https://pay.doku.com/...
+VITE_DOKU_PAYMENT_LINK_TIER_3=https://pay.doku.com/...
 ```
+
+`VITE_DOKU_PAYMENT_LINK_TIER_*` dipakai oleh route publik `/pay?plan=tier_1&wa=628xxxxxxxxxx` yang dikirim Arthur dari WhatsApp. Nilai ini masuk saat Docker build, jadi rebuild image setelah mengubah link DOKU. Set `VITE_PAYMENT_DYNAMIC_LINKS=true` hanya jika n8n sudah siap mengembalikan `payment_url` dinamis.
 
 Dengan mode ini, frontend tetap memanggil `/v1/...` di domain yang sama, lalu Nginx meneruskan request ke backend.
 
