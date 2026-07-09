@@ -2,13 +2,7 @@ import { FormEvent, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 type PlanCode = 'tier_1' | 'tier_2' | 'tier_3'
-type BridgeStatus = 'idle' | 'sending' | 'redirecting' | 'error'
-type PaymentLinkResponse = { paymentUrl: string; invoiceNumber?: string | null }
-
-const PAYMENT_WEBHOOK_URL =
-  (import.meta.env.VITE_PAYMENT_WEBHOOK_URL as string | undefined) ||
-  'https://n8n.srv651498.hstgr.cloud/webhook/midtrans-aistaff'
-const PAYMENT_DYNAMIC_LINKS = (import.meta.env.VITE_PAYMENT_DYNAMIC_LINKS as string | undefined) === 'true'
+type BridgeStatus = 'idle' | 'redirecting' | 'error'
 
 const PLAN_CONFIG: Record<PlanCode, { label: string; description: string; dokuUrl: string }> = {
   tier_1: {
@@ -53,49 +47,6 @@ function makeBridgeRef() {
   return `pay_${Date.now()}_${Math.random().toString(16).slice(2)}`
 }
 
-async function postPaymentEvent(payload: Record<string, unknown>) {
-  if (!PAYMENT_WEBHOOK_URL) return
-
-  try {
-    await fetch(PAYMENT_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    return
-  } catch {
-    await fetch(PAYMENT_WEBHOOK_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      keepalive: true,
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload),
-    }).catch(() => undefined)
-  }
-}
-
-async function requestDynamicPaymentLink(payload: Record<string, unknown>): Promise<PaymentLinkResponse | null> {
-  try {
-    const response = await fetch(PAYMENT_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...payload, event: 'clevio_payment_link_requested' }),
-    })
-    if (!response.ok) return null
-    const data = (await response.json().catch(() => null)) as Record<string, unknown> | null
-    if (!data) return null
-    const paymentUrl = data.payment_url || data.paymentUrl || data.doku_payment_url || data.url
-    if (typeof paymentUrl !== 'string' || !paymentUrl) return null
-    const invoiceNumber = data.invoice_number || data.invoiceNumber || data.reference_id || null
-    return {
-      paymentUrl,
-      invoiceNumber: typeof invoiceNumber === 'string' ? invoiceNumber : null,
-    }
-  } catch {
-    return null
-  }
-}
-
 export default function PaymentBridge() {
   const { search } = useLocation()
   const params = useMemo(() => new URLSearchParams(search), [search])
@@ -110,7 +61,7 @@ export default function PaymentBridge() {
   const plan = PLAN_CONFIG[planCode]
   const normalizedPhone = normalizePhone(phone)
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
 
@@ -126,30 +77,20 @@ export default function PaymentBridge() {
     }
 
     const bridgeRef = makeBridgeRef()
-    const basePayload = {
+    const payload = {
       source: 'chiefaiofficer_payment_bridge',
       bridge_reference: bridgeRef,
       phone_number: normalizedPhone,
       plan_code: planCode,
       plan_label: plan.label,
+      doku_payment_url: plan.dokuUrl,
       return_url: `${window.location.origin}/pay/return?ref=${encodeURIComponent(bridgeRef)}`,
       created_at: new Date().toISOString(),
     }
 
-    setStatus('sending')
-    const dynamicLink = PAYMENT_DYNAMIC_LINKS ? await requestDynamicPaymentLink(basePayload) : null
-    const paymentUrl = dynamicLink?.paymentUrl || plan.dokuUrl
-    const payload = {
-      ...basePayload,
-      event: dynamicLink ? 'clevio_payment_intent_created' : 'clevio_payment_intent_started',
-      invoice_number: dynamicLink?.invoiceNumber || null,
-      doku_payment_url: paymentUrl,
-    }
-
     localStorage.setItem('clevio_payment_intent', JSON.stringify(payload))
-    if (!dynamicLink) await postPaymentEvent(payload)
     setStatus('redirecting')
-    window.location.assign(paymentUrl)
+    window.location.assign(plan.dokuUrl)
   }
 
   return (
@@ -195,10 +136,10 @@ export default function PaymentBridge() {
 
           <button
             type="submit"
-            disabled={status === 'sending' || status === 'redirecting'}
+            disabled={status === 'redirecting'}
             className="btn-primary w-full py-3 disabled:opacity-60"
           >
-            {status === 'sending' ? 'Menyiapkan pembayaran...' : status === 'redirecting' ? 'Membuka DOKU...' : 'Bayar di DOKU'}
+            {status === 'redirecting' ? 'Membuka DOKU...' : 'Bayar di DOKU'}
           </button>
         </form>
 

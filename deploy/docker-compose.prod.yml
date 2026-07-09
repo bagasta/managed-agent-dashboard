@@ -7,7 +7,6 @@ services:
         # Leave empty for public production unless the backend has no safer auth path yet.
         VITE_API_KEY: ${VITE_API_KEY:-}
         VITE_PAYMENT_WEBHOOK_URL: ${VITE_PAYMENT_WEBHOOK_URL:-}
-        VITE_PAYMENT_DYNAMIC_LINKS: ${VITE_PAYMENT_DYNAMIC_LINKS:-}
         VITE_DOKU_PAYMENT_LINK_TIER_1: ${VITE_DOKU_PAYMENT_LINK_TIER_1:-}
         VITE_DOKU_PAYMENT_LINK_TIER_2: ${VITE_DOKU_PAYMENT_LINK_TIER_2:-}
         VITE_DOKU_PAYMENT_LINK_TIER_3: ${VITE_DOKU_PAYMENT_LINK_TIER_3:-}

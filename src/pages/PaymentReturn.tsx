@@ -33,23 +33,65 @@ function readStoredIntent() {
   }
 }
 
+function getFirstParam(params: URLSearchParams, keys: string[]) {
+  for (const key of keys) {
+    const value = params.get(key)
+    if (value) return value
+  }
+  return ''
+}
+
+function isSuccessStatus(value: string) {
+  const normalized = value.trim().toLowerCase()
+  return [
+    'success',
+    'sukses',
+    'paid',
+    'settlement',
+    'settled',
+    'completed',
+    'complete',
+    'capture',
+    'captured',
+    '00',
+    'true',
+  ].includes(normalized)
+}
+
 export default function PaymentReturn() {
   const { search } = useLocation()
   const params = useMemo(() => new URLSearchParams(search), [search])
   const [sent, setSent] = useState(false)
+  const [shouldNotify, setShouldNotify] = useState(false)
 
-  const invoiceNumber =
-    params.get('invoice_number') ||
-    params.get('invoice') ||
-    params.get('order_id') ||
-    params.get('reference_id') ||
-    ''
-  const transactionStatus = params.get('status') || params.get('transaction_status') || 'returned'
+  const invoiceNumber = getFirstParam(params, [
+    'invoice_number',
+    'invoice',
+    'order_id',
+    'reference_id',
+    'order.invoice_number',
+  ])
+  const transactionStatus = getFirstParam(params, [
+    'status',
+    'transaction_status',
+    'transaction.status',
+    'payment_status',
+    'result',
+    'status_code',
+  ])
+  const success = isSuccessStatus(transactionStatus)
 
   useEffect(() => {
+    if (!success) {
+      setSent(false)
+      setShouldNotify(false)
+      return
+    }
+
+    setShouldNotify(true)
     const stored = readStoredIntent()
     const payload = {
-      event: 'clevio_payment_browser_returned',
+      event: 'clevio_payment_success_returned',
       source: 'chiefaiofficer_payment_bridge',
       bridge_reference: params.get('ref') || stored?.bridge_reference || null,
       phone_number: stored?.phone_number || null,
@@ -62,17 +104,23 @@ export default function PaymentReturn() {
     }
 
     postPaymentEvent(payload).finally(() => setSent(true))
-  }, [invoiceNumber, params, transactionStatus])
+  }, [invoiceNumber, params, success, transactionStatus])
 
   return (
     <main className="min-h-screen bg-[#f5f5f7] px-5 py-8 flex items-center justify-center">
       <section className="w-full max-w-[520px] bg-white border border-ink-100 rounded-[20px] shadow-card p-6 md:p-8 text-center">
-        <div className="mx-auto w-12 h-12 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-xl">
-          ✓
+        <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center text-xl ${
+          success ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+        }`}>
+          {success ? '✓' : '!'}
         </div>
-        <h1 className="mt-5 text-[28px] leading-tight font-semibold tracking-tight">Pembayaran sedang diverifikasi</h1>
+        <h1 className="mt-5 text-[28px] leading-tight font-semibold tracking-tight">
+          {success ? 'Pembayaran sukses diterima' : 'Pembayaran belum terkonfirmasi'}
+        </h1>
         <p className="mt-3 text-sm text-ink-500">
-          Data pembayaran sudah diterima. Aktivasi paket akan diproses setelah notifikasi resmi dari DOKU masuk.
+          {success
+            ? 'Data pembayaran sukses sudah dikirim ke sistem aktivasi.'
+            : 'Halaman ini belum menerima status sukses dari DOKU, jadi sistem aktivasi belum dipanggil.'}
         </p>
         {invoiceNumber && (
           <div className="mt-5 rounded-xl bg-ink-50 border border-ink-100 px-4 py-3 text-left">
@@ -84,7 +132,9 @@ export default function PaymentReturn() {
           <Link to="/login" className="btn-primary">Masuk ke dashboard</Link>
         </div>
         <p className="mt-4 text-[12px] text-ink-400">
-          {sent ? 'Status sudah dikirim ke sistem aktivasi.' : 'Mengirim status ke sistem aktivasi...'}
+          {success
+            ? (sent ? 'Status sukses sudah dikirim ke sistem aktivasi.' : 'Mengirim status sukses ke sistem aktivasi...')
+            : (shouldNotify ? 'Menunggu pengiriman status...' : 'Webhook n8n tidak dipanggil karena status belum sukses.')}
         </p>
       </section>
     </main>
