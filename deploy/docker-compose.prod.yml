@@ -15,7 +15,9 @@ services:
     environment:
       API_UPSTREAM: ${API_UPSTREAM:-https://managed-agent.chiefaiofficer.id}
       API_UPSTREAM_HOST: ${API_UPSTREAM_HOST:-managed-agent.chiefaiofficer.id}
-      NGINX_ENVSUBST_FILTER: "^(API_UPSTREAM|API_UPSTREAM_HOST)$"
+      PAYMENT_WEBHOOK_UPSTREAM: ${PAYMENT_WEBHOOK_UPSTREAM:-https://n8n.srv651498.hstgr.cloud/webhook/midtrans-aistaff}
+      PAYMENT_WEBHOOK_HOST: ${PAYMENT_WEBHOOK_HOST:-n8n.srv651498.hstgr.cloud}
+      NGINX_ENVSUBST_FILTER: "^(API_UPSTREAM|API_UPSTREAM_HOST|PAYMENT_WEBHOOK_UPSTREAM|PAYMENT_WEBHOOK_HOST)$"
     networks:
       - root_default
     labels:

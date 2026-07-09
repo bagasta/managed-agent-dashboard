@@ -19,7 +19,9 @@ Default upstream API:
 ```env
 API_UPSTREAM=https://managed-agent.chiefaiofficer.id
 API_UPSTREAM_HOST=managed-agent.chiefaiofficer.id
-VITE_PAYMENT_WEBHOOK_URL=https://n8n.srv651498.hstgr.cloud/webhook/midtrans-aistaff
+PAYMENT_WEBHOOK_UPSTREAM=https://n8n.srv651498.hstgr.cloud/webhook/midtrans-aistaff
+PAYMENT_WEBHOOK_HOST=n8n.srv651498.hstgr.cloud
+VITE_PAYMENT_WEBHOOK_URL=/payment-webhook
 VITE_DOKU_PAYMENT_LINK_TIER_1=https://sandbox.doku.com/p-link/p/...
 VITE_DOKU_PAYMENT_LINK_TIER_2=https://pay.doku.com/...
 VITE_DOKU_PAYMENT_LINK_TIER_3=https://pay.doku.com/...

@@ -1,26 +1,48 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-const PAYMENT_WEBHOOK_URL =
-  (import.meta.env.VITE_PAYMENT_WEBHOOK_URL as string | undefined) ||
-  'https://n8n.srv651498.hstgr.cloud/webhook/midtrans-aistaff'
+const DIRECT_PAYMENT_WEBHOOK_URL = 'https://n8n.srv651498.hstgr.cloud/webhook/midtrans-aistaff'
+const CONFIGURED_PAYMENT_WEBHOOK_URL = import.meta.env.VITE_PAYMENT_WEBHOOK_URL as string | undefined
+
+function getWebhookCandidates() {
+  return Array.from(new Set([
+    '/payment-webhook',
+    CONFIGURED_PAYMENT_WEBHOOK_URL,
+    DIRECT_PAYMENT_WEBHOOK_URL,
+  ].filter(Boolean) as string[]))
+}
 
 async function postPaymentEvent(payload: Record<string, unknown>) {
-  try {
-    await fetch(PAYMENT_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-  } catch {
-    await fetch(PAYMENT_WEBHOOK_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      keepalive: true,
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload),
-    }).catch(() => undefined)
+  const body = JSON.stringify(payload)
+  const candidates = getWebhookCandidates()
+
+  for (const url of candidates) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        keepalive: true,
+        headers: { 'Content-Type': 'application/json' },
+        body,
+      })
+      if (response.ok) return
+    } catch {}
   }
+
+  if ('sendBeacon' in navigator) {
+    const queued = navigator.sendBeacon(
+      candidates[0],
+      new Blob([body], { type: 'text/plain;charset=UTF-8' }),
+    )
+    if (queued) return
+  }
+
+  await fetch(DIRECT_PAYMENT_WEBHOOK_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    keepalive: true,
+    headers: { 'Content-Type': 'text/plain' },
+    body,
+  }).catch(() => undefined)
 }
 
 function readStoredIntent() {
