@@ -27,7 +27,9 @@ VITE_DOKU_PAYMENT_LINK_TIER_3=https://pay.doku.com/...
 
 `VITE_DOKU_PAYMENT_LINK_TIER_*` dipakai oleh route publik `/pay?plan=tier_1&wa=628xxxxxxxxxx` yang dikirim Arthur dari WhatsApp. Nilai ini masuk saat Docker build, jadi rebuild image setelah mengubah link DOKU.
 
-Route `/pay` hanya menyimpan konteks nomor WhatsApp/plan di browser lalu redirect ke DOKU. Webhook n8n baru dipanggil oleh `/pay/return` jika callback DOKU membawa status sukses, misalnya `https://chiefaiofficer.id/pay/return?status=SUCCESS`. Jangan arahkan pending/failed/cancel callback ke status sukses.
+Route `/pay` hanya menyimpan konteks nomor WhatsApp/plan di browser lalu redirect ke DOKU. Webhook n8n baru dipanggil oleh `/pay/return` jika callback DOKU membawa status sukses, misalnya `https://chiefaiofficer.id/pay/return?status=SUCCESS`. Kalau DOKU success redirect hanya bisa diisi URL tanpa query status, pakai `https://chiefaiofficer.id/pay/return`; route ini akan dianggap sukses selama user memulai pembayaran dari `/pay`. Jangan arahkan pending/failed/cancel callback ke URL sukses yang sama.
+
+Jangan isi **Payment Notification URL** DOKU dengan `/pay/return`. Field itu adalah webhook server-to-server dari DOKU, sementara frontend ini static React app. Untuk mode bridge frontend, yang dibutuhkan adalah **success/return/redirect URL** setelah pembayaran sukses.
 
 Dengan mode ini, frontend tetap memanggil `/v1/...` di domain yang sama, lalu Nginx meneruskan request ke backend.
 

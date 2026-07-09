@@ -58,11 +58,33 @@ function isSuccessStatus(value: string) {
   ].includes(normalized)
 }
 
+function isExplicitNonSuccessStatus(value: string) {
+  const normalized = value.trim().toLowerCase()
+  return [
+    'pending',
+    'process',
+    'processing',
+    'failed',
+    'failure',
+    'error',
+    'cancel',
+    'cancelled',
+    'canceled',
+    'expired',
+    'deny',
+    'denied',
+    'void',
+    'refund',
+    'refunded',
+  ].includes(normalized)
+}
+
 export default function PaymentReturn() {
   const { search } = useLocation()
   const params = useMemo(() => new URLSearchParams(search), [search])
   const [sent, setSent] = useState(false)
   const [shouldNotify, setShouldNotify] = useState(false)
+  const stored = readStoredIntent()
 
   const invoiceNumber = getFirstParam(params, [
     'invoice_number',
@@ -79,7 +101,10 @@ export default function PaymentReturn() {
     'result',
     'status_code',
   ])
-  const success = isSuccessStatus(transactionStatus)
+  const explicitFailure = isExplicitNonSuccessStatus(transactionStatus)
+  const success =
+    isSuccessStatus(transactionStatus) ||
+    (!transactionStatus && Boolean(stored?.bridge_reference || params.get('ref')))
 
   useEffect(() => {
     if (!success) {
@@ -89,7 +114,6 @@ export default function PaymentReturn() {
     }
 
     setShouldNotify(true)
-    const stored = readStoredIntent()
     const payload = {
       event: 'clevio_payment_success_returned',
       source: 'chiefaiofficer_payment_bridge',
@@ -98,13 +122,13 @@ export default function PaymentReturn() {
       plan_code: stored?.plan_code || null,
       plan_label: stored?.plan_label || null,
       invoice_number: invoiceNumber || null,
-      transaction_status: transactionStatus,
+      transaction_status: transactionStatus || 'SUCCESS_RETURN_URL',
       returned_at: new Date().toISOString(),
       query: Object.fromEntries(params.entries()),
     }
 
     postPaymentEvent(payload).finally(() => setSent(true))
-  }, [invoiceNumber, params, success, transactionStatus])
+  }, [invoiceNumber, params, stored?.bridge_reference, stored?.phone_number, stored?.plan_code, stored?.plan_label, success, transactionStatus])
 
   return (
     <main className="min-h-screen bg-[#f5f5f7] px-5 py-8 flex items-center justify-center">
@@ -120,7 +144,9 @@ export default function PaymentReturn() {
         <p className="mt-3 text-sm text-ink-500">
           {success
             ? 'Data pembayaran sukses sudah dikirim ke sistem aktivasi.'
-            : 'Halaman ini belum menerima status sukses dari DOKU, jadi sistem aktivasi belum dipanggil.'}
+            : explicitFailure
+              ? 'Status dari DOKU belum sukses, jadi sistem aktivasi belum dipanggil.'
+              : 'Halaman ini belum menerima konteks pembayaran dari DOKU, jadi sistem aktivasi belum dipanggil.'}
         </p>
         {invoiceNumber && (
           <div className="mt-5 rounded-xl bg-ink-50 border border-ink-100 px-4 py-3 text-left">
