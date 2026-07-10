@@ -81,9 +81,12 @@ async function createCheckout(payload: Record<string, unknown>) {
   })
 
   const contentType = response.headers.get('content-type') || ''
-  const data = contentType.includes('application/json')
-    ? await response.json()
-    : { payment_url: await response.text() }
+  const rawBody = await response.text()
+  const data = rawBody
+    ? contentType.includes('application/json')
+      ? JSON.parse(rawBody)
+      : { payment_url: rawBody }
+    : null
 
   if (!response.ok) {
     const message =
@@ -91,6 +94,10 @@ async function createCheckout(payload: Record<string, unknown>) {
         ? String((data as { message?: unknown }).message)
         : 'Gagal membuat checkout DOKU.'
     throw new Error(message)
+  }
+
+  if (!data) {
+    throw new Error('n8n create checkout belum mengembalikan response. Cek node Return payment_url di workflow doku-create-checkout.')
   }
 
   const paymentUrl = getPaymentUrl(data)
