@@ -2,23 +2,27 @@ import { FormEvent, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 type PlanCode = 'tier_1' | 'tier_2' | 'tier_3'
-type BridgeStatus = 'idle' | 'redirecting' | 'error'
+type BridgeStatus = 'idle' | 'creating' | 'redirecting' | 'error'
 
-const PLAN_CONFIG: Record<PlanCode, { label: string; description: string; dokuUrl: string }> = {
+const CREATE_CHECKOUT_URL =
+  (import.meta.env.VITE_PAYMENT_CREATE_CHECKOUT_URL as string | undefined) ||
+  '/payment-create-checkout'
+
+const PLAN_CONFIG: Record<PlanCode, { label: string; description: string; amount: number }> = {
   tier_1: {
     label: 'Starter',
     description: '1 AI Staff, WhatsApp aktif, kuota 10 juta token per bulan.',
-    dokuUrl: (import.meta.env.VITE_DOKU_PAYMENT_LINK_TIER_1 as string | undefined) || '',
+    amount: Number(import.meta.env.VITE_PAYMENT_PLAN_TIER_1_AMOUNT || 100000),
   },
   tier_2: {
     label: 'Pro',
     description: '2 AI Staff, WhatsApp aktif, kuota 20 juta token per bulan.',
-    dokuUrl: (import.meta.env.VITE_DOKU_PAYMENT_LINK_TIER_2 as string | undefined) || '',
+    amount: Number(import.meta.env.VITE_PAYMENT_PLAN_TIER_2_AMOUNT || 250000),
   },
   tier_3: {
     label: 'Enterprise',
     description: 'AI Staff tanpa batas dengan kuota enterprise.',
-    dokuUrl: (import.meta.env.VITE_DOKU_PAYMENT_LINK_TIER_3 as string | undefined) || '',
+    amount: Number(import.meta.env.VITE_PAYMENT_PLAN_TIER_3_AMOUNT || 500000),
   },
 }
 
@@ -47,6 +51,53 @@ function makeBridgeRef() {
   return `pay_${Date.now()}_${Math.random().toString(16).slice(2)}`
 }
 
+function getPaymentUrl(data: unknown): string {
+  if (!data || typeof data !== 'object') return ''
+  if (Array.isArray(data)) {
+    for (const item of data) {
+      const url = getPaymentUrl(item)
+      if (url) return url
+    }
+    return ''
+  }
+
+  const record = data as Record<string, unknown>
+  const direct = record.payment_url || record.checkout_url || record.redirect_url || record.url
+  if (typeof direct === 'string') return direct
+
+  return (
+    getPaymentUrl(record.payment) ||
+    getPaymentUrl(record.response) ||
+    getPaymentUrl(record.data) ||
+    getPaymentUrl(record.body)
+  )
+}
+
+async function createCheckout(payload: Record<string, unknown>) {
+  const response = await fetch(CREATE_CHECKOUT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  const contentType = response.headers.get('content-type') || ''
+  const data = contentType.includes('application/json')
+    ? await response.json()
+    : { payment_url: await response.text() }
+
+  if (!response.ok) {
+    const message =
+      data && typeof data === 'object' && 'message' in data
+        ? String((data as { message?: unknown }).message)
+        : 'Gagal membuat checkout DOKU.'
+    throw new Error(message)
+  }
+
+  const paymentUrl = getPaymentUrl(data)
+  if (!paymentUrl) throw new Error('Response checkout belum berisi payment_url dari DOKU.')
+  return { data, paymentUrl }
+}
+
 export default function PaymentBridge() {
   const { search } = useLocation()
   const params = useMemo(() => new URLSearchParams(search), [search])
@@ -61,7 +112,7 @@ export default function PaymentBridge() {
   const plan = PLAN_CONFIG[planCode]
   const normalizedPhone = normalizePhone(phone)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
 
@@ -70,27 +121,40 @@ export default function PaymentBridge() {
       setError('Nomor WhatsApp belum valid. Pakai format 628xxxxxxxxxx.')
       return
     }
-    if (!plan.dokuUrl) {
-      setStatus('error')
-      setError(`Link pembayaran DOKU untuk paket ${plan.label} belum dikonfigurasi.`)
-      return
-    }
 
     const bridgeRef = makeBridgeRef()
     const payload = {
+      event: 'clevio_payment_create_checkout',
       source: 'chiefaiofficer_payment_bridge',
       bridge_reference: bridgeRef,
       phone_number: normalizedPhone,
       plan_code: planCode,
       plan_label: plan.label,
-      doku_payment_url: plan.dokuUrl,
+      display_amount: plan.amount,
+      currency: 'IDR',
       return_url: `${window.location.origin}/pay/return?ref=${encodeURIComponent(bridgeRef)}`,
+      callback_url_result: `${window.location.origin}/pay/return?ref=${encodeURIComponent(bridgeRef)}`,
+      callback_url: `${window.location.origin}/pay`,
+      notification_url: `${window.location.origin}/payment-webhook`,
       created_at: new Date().toISOString(),
     }
 
     localStorage.setItem('clevio_payment_intent', JSON.stringify(payload))
-    setStatus('redirecting')
-    window.location.assign(plan.dokuUrl)
+    setStatus('creating')
+
+    try {
+      const { data, paymentUrl } = await createCheckout(payload)
+      localStorage.setItem('clevio_payment_intent', JSON.stringify({
+        ...payload,
+        checkout_response: data,
+        payment_url: paymentUrl,
+      }))
+      setStatus('redirecting')
+      window.location.assign(paymentUrl)
+    } catch (error) {
+      setStatus('error')
+      setError(error instanceof Error ? error.message : 'Gagal membuat checkout DOKU.')
+    }
   }
 
   return (
@@ -115,6 +179,9 @@ export default function PaymentBridge() {
               <option value="tier_3">Enterprise</option>
             </select>
             <p className="mt-2 text-xs text-ink-500">{plan.description}</p>
+            <p className="mt-1 text-xs text-ink-500">
+              IDR {plan.amount.toLocaleString('id-ID')}
+            </p>
           </div>
 
           <div>
@@ -136,10 +203,14 @@ export default function PaymentBridge() {
 
           <button
             type="submit"
-            disabled={status === 'redirecting'}
+            disabled={status === 'creating' || status === 'redirecting'}
             className="btn-primary w-full py-3 disabled:opacity-60"
           >
-            {status === 'redirecting' ? 'Membuka DOKU...' : 'Bayar di DOKU'}
+            {status === 'creating'
+              ? 'Membuat checkout...'
+              : status === 'redirecting'
+                ? 'Membuka DOKU...'
+                : 'Bayar di DOKU'}
           </button>
         </form>
 

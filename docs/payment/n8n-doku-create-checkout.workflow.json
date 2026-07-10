@@ -1,0 +1,168 @@
+{
+  "name": "Clevio - DOKU Sandbox Create Checkout",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "doku-create-checkout",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "9f83b6c4-7677-421e-a5b7-497b231432d5",
+      "name": "POST /doku-create-checkout",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -680,
+        0
+      ],
+      "webhookId": "doku-create-checkout"
+    },
+    {
+      "parameters": {
+        "jsCode": "const DOKU_CONFIG = {\n  clientId: 'ISI_CLIENT_ID_SANDBOX_DOKU',\n  secretKey: 'ISI_SECRET_KEY_SANDBOX_DOKU',\n  checkoutEndpoint: 'https://api-sandbox.doku.com/checkout/v1/payment',\n  notificationUrl: 'https://n8n.srv651498.hstgr.cloud/webhook/midtrans-aistaff',\n  checkoutDueMinutes: 60,\n};\n\nconst encoder = new TextEncoder();\n\nfunction normalizePhone(value) {\n  const digits = String(value || '').replace(/\\D/g, '');\n  if (digits.startsWith('0')) return '62' + digits.slice(1);\n  return digits;\n}\n\nfunction isoTimestamp() {\n  return new Date().toISOString().replace(/\\.\\d{3}Z$/, 'Z');\n}\n\nfunction localInvoiceTimestamp() {\n  const now = new Date();\n  const parts = new Intl.DateTimeFormat('en-CA', {\n    timeZone: 'Asia/Jakarta',\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: '2-digit',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: false,\n  }).formatToParts(now).reduce((acc, part) => {\n    acc[part.type] = part.value;\n    return acc;\n  }, {});\n  return parts.year + parts.month + parts.day + parts.hour + parts.minute + parts.second;\n}\n\nasync function sha256Base64(value) {\n  const digest = await crypto.subtle.digest('SHA-256', encoder.encode(value));\n  return Buffer.from(digest).toString('base64');\n}\n\nasync function hmacSha256Base64(secret, value) {\n  const key = await crypto.subtle.importKey(\n    'raw',\n    encoder.encode(secret),\n    { name: 'HMAC', hash: 'SHA-256' },\n    false,\n    ['sign'],\n  );\n  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(value));\n  return Buffer.from(signature).toString('base64');\n}\n\nconst root = $input.first().json;\nconst input = root.body || root;\n\nconst clientId = String(DOKU_CONFIG.clientId || '').trim();\nconst secretKey = String(DOKU_CONFIG.secretKey || '').trim();\nif (!clientId || clientId === 'ISI_CLIENT_ID_SANDBOX_DOKU') {\n  throw new Error('Isi DOKU_CONFIG.clientId di node Build DOKU Request.');\n}\nif (!secretKey || secretKey === 'ISI_SECRET_KEY_SANDBOX_DOKU') {\n  throw new Error('Isi DOKU_CONFIG.secretKey di node Build DOKU Request.');\n}\n\nconst plans = {\n  tier_1: { tierNumber: '1', label: 'Starter', amount: 100000, sku: 'CLE-TIER-1' },\n  tier_2: { tierNumber: '2', label: 'Pro', amount: 250000, sku: 'CLE-TIER-2' },\n  tier_3: { tierNumber: '3', label: 'Enterprise', amount: 500000, sku: 'CLE-TIER-3' },\n};\n\nconst planCode = String(input.plan_code || input.plan || 'tier_1').toLowerCase();\nconst plan = plans[planCode];\nif (!plan) throw new Error('Unsupported plan_code: ' + planCode);\n\nconst phone = normalizePhone(input.phone_number || input.wa || input.phone);\nif (!phone || phone.length < 9 || phone.length > 16) {\n  throw new Error('phone_number must use format 628xxxxxxxxxx and max 16 digits.');\n}\n\nconst bridgeReference = String(input.bridge_reference || crypto.randomUUID());\nconst timestamp = localInvoiceTimestamp();\nconst invoiceNumber = ('CLE' + plan.tierNumber + phone + timestamp).slice(0, 64);\nconst callbackUrlResult = String(input.callback_url_result || input.return_url || ('https://chiefaiofficer.id/pay/return?ref=' + encodeURIComponent(bridgeReference)));\nconst callbackUrl = String(input.callback_url || 'https://chiefaiofficer.id/pay');\nconst notificationUrl = DOKU_CONFIG.notificationUrl;\nconst dueMinutes = Number(DOKU_CONFIG.checkoutDueMinutes || 60);\n\nconst body = {\n  order: {\n    amount: plan.amount,\n    invoice_number: invoiceNumber,\n    currency: 'IDR',\n    callback_url: callbackUrl,\n    callback_url_result: callbackUrlResult,\n    auto_redirect: true,\n    line_items: [\n      {\n        id: planCode,\n        name: 'Clevio AI Staff ' + plan.label,\n        quantity: 1,\n        price: plan.amount,\n        sku: plan.sku,\n        category: 'digital-content',\n      },\n    ],\n  },\n  payment: {\n    payment_due_date: dueMinutes,\n  },\n  customer: {\n    id: phone,\n    name: 'Clevio Customer',\n    phone,\n  },\n  additional_info: {\n    override_notification_url: notificationUrl,\n  },\n};\n\nconst bodyString = JSON.stringify(body);\nconst requestTarget = '/checkout/v1/payment';\nconst requestTimestamp = isoTimestamp();\nconst requestId = ('CLE-' + bridgeReference).replace(/[^a-zA-Z0-9-]/g, '').slice(0, 128);\nconst digest = await sha256Base64(bodyString);\nconst signatureComponent = [\n  'Client-Id:' + clientId,\n  'Request-Id:' + requestId,\n  'Request-Timestamp:' + requestTimestamp,\n  'Request-Target:' + requestTarget,\n  'Digest:' + digest,\n].join('\\n');\nconst signature = 'HMACSHA256=' + await hmacSha256Base64(secretKey, signatureComponent);\n\nreturn [\n  {\n    json: {\n      endpoint: DOKU_CONFIG.checkoutEndpoint,\n      headers: {\n        clientId,\n        requestId,\n        requestTimestamp,\n        signature,\n      },\n      bodyString,\n      merchant_context: {\n        event: 'clevio_payment_create_checkout',\n        bridge_reference: bridgeReference,\n        phone_number: phone,\n        plan_code: planCode,\n        plan_label: plan.label,\n        amount: plan.amount,\n        invoice_number: invoiceNumber,\n        callback_url_result: callbackUrlResult,\n        notification_url: notificationUrl,\n        created_at: new Date().toISOString(),\n      },\n    },\n  },\n];"
+      },
+      "id": "03f7e9a9-84aa-40db-99ba-c5fb4788d768",
+      "name": "Build DOKU Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -420,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.endpoint }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Client-Id",
+              "value": "={{ $json.headers.clientId }}"
+            },
+            {
+              "name": "Request-Id",
+              "value": "={{ $json.headers.requestId }}"
+            },
+            {
+              "name": "Request-Timestamp",
+              "value": "={{ $json.headers.requestTimestamp }}"
+            },
+            {
+              "name": "Signature",
+              "value": "={{ $json.headers.signature }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.bodyString }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "ec8a208f-3e39-4c71-9e5c-db426fa4e6f5",
+      "name": "Create DOKU Checkout",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst context = $('Build DOKU Request').first().json.merchant_context;\nconst paymentUrl = response?.response?.payment?.url || response?.payment?.url || response?.payment_url || response?.url;\n\nif (!paymentUrl) {\n  throw new Error(`DOKU response does not contain payment URL: ${JSON.stringify(response)}`);\n}\n\nreturn [\n  {\n    json: {\n      payment_url: paymentUrl,\n      invoice_number: context.invoice_number,\n      bridge_reference: context.bridge_reference,\n      phone_number: context.phone_number,\n      plan_code: context.plan_code,\n      plan_label: context.plan_label,\n      amount: context.amount,\n      doku_response: response,\n    },\n  },\n];"
+      },
+      "id": "ec1c7a80-b106-4a0c-9158-556ed20c9cf4",
+      "name": "Build Frontend Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "1afff6ec-2d82-432d-bffc-5d31afcaf3ba",
+      "name": "Return payment_url",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        360,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "POST /doku-create-checkout": {
+      "main": [
+        [
+          {
+            "node": "Build DOKU Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build DOKU Request": {
+      "main": [
+        [
+          {
+            "node": "Create DOKU Checkout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create DOKU Checkout": {
+      "main": [
+        [
+          {
+            "node": "Build Frontend Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Frontend Response": {
+      "main": [
+        [
+          {
+            "node": "Return payment_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b36b641e-7830-4b13-8b85-885fa8146327",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "clevio-doku-sandbox-create-checkout",
+  "tags": []
+}

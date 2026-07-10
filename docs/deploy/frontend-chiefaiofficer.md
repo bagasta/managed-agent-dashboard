@@ -12,6 +12,8 @@ Internet
       -> /              static React app
       -> /app/*         SPA fallback ke index.html
       -> /v1/*          proxy ke backend existing
+      -> /payment-create-checkout proxy ke n8n/backend create DOKU Checkout
+      -> /payment-webhook proxy ke n8n activation webhook
 ```
 
 Default upstream API:
@@ -21,17 +23,22 @@ API_UPSTREAM=https://managed-agent.chiefaiofficer.id
 API_UPSTREAM_HOST=managed-agent.chiefaiofficer.id
 PAYMENT_WEBHOOK_UPSTREAM=https://n8n.srv651498.hstgr.cloud/webhook/midtrans-aistaff
 PAYMENT_WEBHOOK_HOST=n8n.srv651498.hstgr.cloud
+PAYMENT_CREATE_CHECKOUT_UPSTREAM=https://n8n.srv651498.hstgr.cloud/webhook/doku-create-checkout
+PAYMENT_CREATE_CHECKOUT_HOST=n8n.srv651498.hstgr.cloud
 VITE_PAYMENT_WEBHOOK_URL=/payment-webhook
-VITE_DOKU_PAYMENT_LINK_TIER_1=https://sandbox.doku.com/p-link/p/...
-VITE_DOKU_PAYMENT_LINK_TIER_2=https://pay.doku.com/...
-VITE_DOKU_PAYMENT_LINK_TIER_3=https://pay.doku.com/...
+VITE_PAYMENT_CREATE_CHECKOUT_URL=/payment-create-checkout
+VITE_PAYMENT_PLAN_TIER_1_AMOUNT=100000
+VITE_PAYMENT_PLAN_TIER_2_AMOUNT=250000
+VITE_PAYMENT_PLAN_TIER_3_AMOUNT=500000
 ```
 
-`VITE_DOKU_PAYMENT_LINK_TIER_*` dipakai oleh route publik `/pay?plan=tier_1&wa=628xxxxxxxxxx` yang dikirim Arthur dari WhatsApp. Nilai ini masuk saat Docker build, jadi rebuild image setelah mengubah link DOKU.
+Route publik `/pay?plan=tier_1&wa=628xxxxxxxxxx` dipakai Arthur dari WhatsApp. Route ini membuat request ke `/payment-create-checkout`, lalu n8n/backend membuat DOKU Checkout sandbox dinamis dan mengembalikan `payment_url`. Frontend tidak menyimpan DOKU Client ID atau Secret Key.
 
-Route `/pay` hanya menyimpan konteks nomor WhatsApp/plan di browser lalu redirect ke DOKU. Webhook n8n baru dipanggil oleh `/pay/return` jika callback DOKU membawa status sukses, misalnya `https://chiefaiofficer.id/pay/return?status=SUCCESS`. Kalau DOKU success redirect hanya bisa diisi URL tanpa query status, pakai `https://chiefaiofficer.id/pay/return`; route ini akan dianggap sukses selama user memulai pembayaran dari `/pay`. Jangan arahkan pending/failed/cancel callback ke URL sukses yang sama.
+Route `/pay` menyimpan konteks nomor WhatsApp/plan di browser, meminta checkout dinamis, lalu redirect ke DOKU `response.payment.url`. DOKU Checkout request dari n8n/backend harus mengisi `order.callback_url_result` ke `https://chiefaiofficer.id/pay/return?ref=...` dan `order.auto_redirect=true` supaya browser balik ke frontend setelah pembayaran.
 
 Jangan isi **Payment Notification URL** DOKU dengan `/pay/return`. Field itu adalah webhook server-to-server dari DOKU, sementara frontend ini static React app. Untuk mode bridge frontend, yang dibutuhkan adalah **success/return/redirect URL** setelah pembayaran sukses.
+
+Untuk aktivasi paket, source-of-truth tetap notification server-to-server DOKU ke n8n. Frontend return event hanya sinyal UX tambahan; n8n harus idempotent berdasarkan `order.invoice_number`.
 
 Dengan mode ini, frontend tetap memanggil `/v1/...` di domain yang sama, lalu Nginx meneruskan request ke backend.
 
@@ -75,6 +82,7 @@ curl -I https://chiefaiofficer.id/
 curl -I https://chiefaiofficer.id/login
 curl -I https://chiefaiofficer.id/app
 curl -I https://chiefaiofficer.id/v1/models
+curl -I https://chiefaiofficer.id/payment-create-checkout
 sudo docker compose --env-file deploy/.env.prod -f deploy/docker-compose.prod.yml ps
 ```
 
