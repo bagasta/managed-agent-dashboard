@@ -150,7 +150,6 @@ export const GOOGLE_BASELINE_SCOPES = [
   'openid',
   'https://www.googleapis.com/auth/userinfo.email',
   'https://www.googleapis.com/auth/userinfo.profile',
-  'https://www.googleapis.com/auth/drive.file',
 ]
 
 export const MCP_TOOLS: McpTool[] = [
@@ -158,7 +157,7 @@ export const MCP_TOOLS: McpTool[] = [
     id: 'gmail-send',
     name: 'Gmail (Send)',
     service: 'gmail',
-    description: 'Kirim email melalui Gmail',
+    description: 'Mengirim email hanya setelah pengguna meminta agent mengirimkannya. Agent tidak menghapus atau mengubah email.',
     scopes: ['https://www.googleapis.com/auth/gmail.send'],
     category: 'sensitive',
   },
@@ -166,39 +165,23 @@ export const MCP_TOOLS: McpTool[] = [
     id: 'gmail-read',
     name: 'Gmail (Read)',
     service: 'gmail',
-    description: 'Baca email dari Gmail',
+    description: 'Membaca email untuk merangkum atau mengambil informasi yang diminta pengguna. Agent tidak mengubah email.',
     scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
-    category: 'sensitive',
-  },
-  {
-    id: 'drive-file',
-    name: 'Google Drive',
-    service: 'drive',
-    description: 'Buat dan akses file Drive yang dibuat oleh agent',
-    scopes: ['https://www.googleapis.com/auth/drive.file'],
     category: 'sensitive',
   },
   {
     id: 'calendar',
     name: 'Google Calendar',
     service: 'calendar',
-    description: 'Buat dan kelola events di Calendar',
+    description: 'Membuat dan memperbarui event kalender atas permintaan pengguna.',
     scopes: ['https://www.googleapis.com/auth/calendar.events'],
-    category: 'sensitive',
-  },
-  {
-    id: 'sheets',
-    name: 'Google Sheets',
-    service: 'sheets',
-    description: 'Baca dan tulis data ke Google Sheets',
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     category: 'sensitive',
   },
   {
     id: 'docs',
     name: 'Google Docs',
     service: 'docs',
-    description: 'Buat dan edit dokumen Google Docs',
+    description: 'Membuat dan mengedit dokumen Google Docs yang digunakan dalam tugas pengguna.',
     scopes: ['https://www.googleapis.com/auth/documents'],
     category: 'sensitive',
   },
@@ -206,54 +189,28 @@ export const MCP_TOOLS: McpTool[] = [
     id: 'forms',
     name: 'Google Forms',
     service: 'forms',
-    description: 'Buat, baca, dan update Google Forms',
+    description: 'Membuat dan memperbarui formulir, lalu membaca struktur dan respons formulir saat diminta pengguna.',
     scopes: [
       'https://www.googleapis.com/auth/forms.body',
       'https://www.googleapis.com/auth/forms.body.readonly',
       'https://www.googleapis.com/auth/forms.responses.readonly',
-      'https://www.googleapis.com/auth/drive.file',
-    ],
-    category: 'sensitive',
-  },
-  {
-    id: 'slides',
-    name: 'Google Slides',
-    service: 'slides',
-    description: 'Buat dan update presentasi Google Slides',
-    scopes: ['https://www.googleapis.com/auth/presentations'],
-    category: 'sensitive',
-  },
-  {
-    id: 'tasks',
-    name: 'Google Tasks',
-    service: 'tasks',
-    description: 'Buat dan kelola task Google',
-    scopes: ['https://www.googleapis.com/auth/tasks'],
-    category: 'sensitive',
-  },
-  {
-    id: 'contacts',
-    name: 'Google Contacts',
-    service: 'contacts',
-    description: 'Baca dan kelola kontak Google',
-    scopes: ['https://www.googleapis.com/auth/contacts'],
-    category: 'sensitive',
-  },
-  {
-    id: 'chat',
-    name: 'Google Chat',
-    service: 'chat',
-    description: 'Kelola spaces, pesan, dan membership Google Chat',
-    scopes: [
-      'https://www.googleapis.com/auth/chat.spaces',
-      'https://www.googleapis.com/auth/chat.messages',
-      'https://www.googleapis.com/auth/chat.memberships',
     ],
     category: 'sensitive',
   },
 ]
 
+export const GOOGLE_WORKSPACE_SCOPE_ALLOWLIST = new Set([
+  ...GOOGLE_BASELINE_SCOPES,
+  ...MCP_TOOLS.flatMap((tool) => tool.scopes),
+])
+
+export function isSupportedGoogleToolId(toolId: string) {
+  return MCP_TOOLS.some((tool) => tool.id === toolId)
+}
+
 export function getMcpToolScopes(toolIds: string[], includeBaseline = true) {
-  const toolScopes = toolIds.flatMap((id) => MCP_TOOLS.find((tool) => tool.id === id)?.scopes ?? [])
+  const toolScopes = toolIds
+    .filter(isSupportedGoogleToolId)
+    .flatMap((id) => MCP_TOOLS.find((tool) => tool.id === id)?.scopes ?? [])
   return [...new Set([...(includeBaseline ? GOOGLE_BASELINE_SCOPES : []), ...toolScopes])]
 }

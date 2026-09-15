@@ -895,6 +895,9 @@ export default function AgentDetail({ user }: { user: User }) {
             )}
             <div className="space-y-3">
               <p className="text-sm font-medium text-ink-700">{t('agent.addConnection', 'Tambah Koneksi Baru')}</p>
+              <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-3 text-xs text-blue-900">
+                Pilih hanya layanan yang benar-benar dipakai agent. Koneksi ini tidak meminta akses ke Google Drive, Sheets, Slides, Tasks, Contacts, atau Google Chat.
+              </div>
               {googleConnectedWithoutScopes && (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
                   {t('agent.googleConnectedNoScopes', 'Akun Google sudah terhubung, tapi daftar layanan yang dipilih belum tersimpan. Pilih layanan yang dibutuhkan lalu hubungkan ulang agar status centang tersinkron.')}
@@ -926,10 +929,13 @@ export default function AgentDetail({ user }: { user: User }) {
                         }
                         className="mt-1 accent-ink-900 disabled:opacity-70"
                       />
-                      <div>
+                      <div className="min-w-0">
                         <div className="text-sm font-medium">{tool.name}</div>
                         <div className="text-xs text-ink-500">
                           {connected ? t('agent.connected', 'Terhubung') : tool.description}
+                        </div>
+                        <div className="mt-1 text-[11px] leading-4 text-ink-400 break-all">
+                          {tool.scopes.join(' · ')}
                         </div>
                       </div>
                     </label>

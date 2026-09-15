@@ -1,5 +1,5 @@
 import { request } from './client'
-import { getMcpToolScopes } from '../types'
+import { getMcpToolScopes, GOOGLE_WORKSPACE_SCOPE_ALLOWLIST } from '../types'
 
 const GOOGLE_SCOPE_CACHE_KEY = 'clevio_google_connected_scopes'
 
@@ -18,7 +18,8 @@ function readScopeCache(): ScopeCache {
 }
 
 export function getCachedGoogleScopes(agentId: string, externalUserId: string): string[] {
-  return readScopeCache()[cacheKey(agentId, externalUserId)]?.scopes || []
+  return (readScopeCache()[cacheKey(agentId, externalUserId)]?.scopes || [])
+    .filter((scope) => GOOGLE_WORKSPACE_SCOPE_ALLOWLIST.has(scope))
 }
 
 function rememberRequestedGoogleScopes(agentId: string, externalUserId: string, toolIds: string[], scopes: string[]) {

@@ -1,4 +1,4 @@
-import { getMcpToolScopes, type ToolsConfig } from '../types'
+import { getMcpToolScopes, isSupportedGoogleToolId, type ToolsConfig } from '../types'
 
 export const DEFAULT_GOOGLE_WORKSPACE_MCP_URL =
   (import.meta.env.VITE_GOOGLE_WORKSPACE_MCP_URL as string | undefined) ||
@@ -60,9 +60,9 @@ export function configureGoogleWorkspaceTools(
   const mcp = asRecord(currentTools.mcp)
   const servers = asRecord(mcp.servers)
   const currentServer = asRecord(servers.google_workspace)
-  const savedToolIds = currentTools.google_workspace?.tool_ids || []
-  const savedScopes = currentTools.google_workspace?.scopes || []
-  const scopes = getGoogleToolScopes(toolIds)
+  const savedToolIds = (currentTools.google_workspace?.tool_ids || []).filter(isSupportedGoogleToolId)
+  const selectedToolIds = [...new Set([...savedToolIds, ...toolIds.filter(isSupportedGoogleToolId)])]
+  const scopes = getGoogleToolScopes(selectedToolIds)
 
   return {
     ...currentTools,
@@ -82,8 +82,10 @@ export function configureGoogleWorkspaceTools(
       },
     },
     google_workspace: {
-      tool_ids: [...new Set([...savedToolIds, ...toolIds])],
-      scopes: [...new Set([...savedScopes, ...scopes])],
+      // Rebuild from allowed tool IDs so a previous connection cannot carry
+      // legacy scopes (Chat, Contacts, Drive, Sheets, etc.) into a new OAuth request.
+      tool_ids: selectedToolIds,
+      scopes,
       updated_at: new Date().toISOString(),
     },
   }
