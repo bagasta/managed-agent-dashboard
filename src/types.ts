@@ -170,6 +170,14 @@ export const MCP_TOOLS: McpTool[] = [
     category: 'sensitive',
   },
   {
+    id: 'drive-file-manage',
+    name: 'Google Drive — Kelola file aplikasi',
+    service: 'drive',
+    description: 'Melihat, membuat, mengubah, dan menghapus hanya file yang dibuat oleh aplikasi atau dipilih pengguna melalui aplikasi. Tidak dapat menjelajahi seluruh Drive.',
+    scopes: ['https://www.googleapis.com/auth/drive.file'],
+    category: 'non-sensitive',
+  },
+  {
     id: 'calendar-read',
     name: 'Google Calendar — Lihat event',
     service: 'calendar',
@@ -202,6 +210,22 @@ export const MCP_TOOLS: McpTool[] = [
     category: 'sensitive',
   },
   {
+    id: 'sheets-read',
+    name: 'Google Sheets — Lihat spreadsheet',
+    service: 'sheets',
+    description: 'Membaca isi spreadsheet untuk menjawab pertanyaan atau membuat ringkasan. Tidak dapat membuat atau mengubah spreadsheet.',
+    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+    category: 'sensitive',
+  },
+  {
+    id: 'sheets-manage',
+    name: 'Google Sheets — Buat & edit spreadsheet',
+    service: 'sheets',
+    description: 'Membuat, mengubah, dan menghapus spreadsheet atas permintaan pengguna. Izin ini juga mencakup membaca spreadsheet.',
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    category: 'sensitive',
+  },
+  {
     id: 'forms-body-read',
     name: 'Google Forms — Lihat struktur formulir',
     service: 'forms',
@@ -213,7 +237,7 @@ export const MCP_TOOLS: McpTool[] = [
     id: 'forms-manage',
     name: 'Google Forms — Buat & edit formulir',
     service: 'forms',
-    description: 'Membuat dan memperbarui struktur formulir atas permintaan pengguna. Google Forms API tidak menyediakan izin hapus formulir terpisah.',
+    description: 'Membuat, mengubah, dan menghapus formulir atas permintaan pengguna. Google menyediakan satu scope kelola, bukan scope terpisah untuk buat/edit/hapus.',
     scopes: ['https://www.googleapis.com/auth/forms.body'],
     category: 'sensitive',
   },
@@ -239,6 +263,7 @@ export const GOOGLE_WORKSPACE_SCOPE_ALLOWLIST = new Set([
 const GOOGLE_SCOPE_IMPLICATIONS: Record<string, string[]> = {
   'https://www.googleapis.com/auth/calendar.events': ['https://www.googleapis.com/auth/calendar.events.readonly'],
   'https://www.googleapis.com/auth/documents': ['https://www.googleapis.com/auth/documents.readonly'],
+  'https://www.googleapis.com/auth/spreadsheets': ['https://www.googleapis.com/auth/spreadsheets.readonly'],
   'https://www.googleapis.com/auth/forms.body': ['https://www.googleapis.com/auth/forms.body.readonly'],
 }
 

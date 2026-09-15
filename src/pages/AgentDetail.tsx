@@ -896,7 +896,7 @@ export default function AgentDetail({ user }: { user: User }) {
             <div className="space-y-3">
               <p className="text-sm font-medium text-ink-700">{t('agent.addConnection', 'Tambah Koneksi Baru')}</p>
               <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-3 text-xs text-blue-900">
-                Pilih hanya layanan yang benar-benar dipakai agent. Koneksi ini tidak meminta akses ke Google Drive, Sheets, Slides, Tasks, Contacts, atau Google Chat.
+                Pilih hanya izin yang benar-benar dipakai agent. Setiap kartu menunjukkan tindakan dan scope OAuth yang akan diminta. Koneksi ini tidak meminta akses ke Google Slides, Tasks, Contacts, atau Google Chat.
               </div>
               {googleConnectedWithoutScopes && (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">

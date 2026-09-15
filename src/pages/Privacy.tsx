@@ -47,16 +47,18 @@ export default function Privacy() {
           <strong>Gmail (send, read):</strong> send and read emails on your instruction.
         </li>
         <li>
-          <strong>Google Drive (file):</strong> create and access agent-created files.
+          <strong>Google Drive:</strong> manage only files created by this app or explicitly selected by you.
         </li>
         <li>
-          <strong>Google Calendar (events):</strong> create and manage calendar events.
+          <strong>Google Calendar:</strong> read or manage events only when you enable the corresponding permission.
         </li>
         <li>
-          <strong>Google Docs:</strong> create and edit documents.
+          <strong>Google Docs:</strong> read or manage documents only when you enable the corresponding permission.
         </li>
         <li>
-          <strong>Google Forms:</strong> create forms and read responses.
+          <strong>Google Sheets:</strong> read or manage spreadsheets only when you enable the corresponding permission.
+          <br />
+          <strong>Google Forms:</strong> read form structure, manage forms, or read responses only when you enable the corresponding permission.
         </li>
       </ul>
 
