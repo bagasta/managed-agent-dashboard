@@ -170,29 +170,59 @@ export const MCP_TOOLS: McpTool[] = [
     category: 'sensitive',
   },
   {
-    id: 'calendar',
-    name: 'Google Calendar',
+    id: 'calendar-read',
+    name: 'Google Calendar — Lihat event',
     service: 'calendar',
-    description: 'Membuat dan memperbarui event kalender atas permintaan pengguna.',
+    description: 'Melihat event kalender untuk menjawab pertanyaan jadwal. Tidak dapat membuat, mengubah, atau menghapus event.',
+    scopes: ['https://www.googleapis.com/auth/calendar.events.readonly'],
+    category: 'sensitive',
+  },
+  {
+    id: 'calendar-manage',
+    name: 'Google Calendar — Kelola event',
+    service: 'calendar',
+    description: 'Membuat, mengubah, dan menghapus event kalender hanya atas permintaan pengguna. Izin ini juga mencakup melihat event.',
     scopes: ['https://www.googleapis.com/auth/calendar.events'],
     category: 'sensitive',
   },
   {
-    id: 'docs',
-    name: 'Google Docs',
+    id: 'docs-read',
+    name: 'Google Docs — Lihat dokumen',
     service: 'docs',
-    description: 'Membuat dan mengedit dokumen Google Docs yang digunakan dalam tugas pengguna.',
+    description: 'Membaca isi dokumen Google Docs untuk menjawab atau merangkum. Tidak dapat membuat atau mengubah dokumen.',
+    scopes: ['https://www.googleapis.com/auth/documents.readonly'],
+    category: 'sensitive',
+  },
+  {
+    id: 'docs-manage',
+    name: 'Google Docs — Buat & edit dokumen',
+    service: 'docs',
+    description: 'Membuat dan mengedit dokumen Google Docs atas permintaan pengguna. Izin ini juga mencakup membaca dokumen.',
     scopes: ['https://www.googleapis.com/auth/documents'],
     category: 'sensitive',
   },
   {
-    id: 'forms',
-    name: 'Google Forms',
+    id: 'forms-body-read',
+    name: 'Google Forms — Lihat struktur formulir',
     service: 'forms',
-    description: 'Membuat dan memperbarui formulir, lalu membaca struktur dan respons formulir saat diminta pengguna.',
+    description: 'Melihat judul, pertanyaan, dan pengaturan formulir. Tidak dapat membuat atau mengubah formulir.',
+    scopes: ['https://www.googleapis.com/auth/forms.body.readonly'],
+    category: 'sensitive',
+  },
+  {
+    id: 'forms-manage',
+    name: 'Google Forms — Buat & edit formulir',
+    service: 'forms',
+    description: 'Membuat dan memperbarui struktur formulir atas permintaan pengguna. Google Forms API tidak menyediakan izin hapus formulir terpisah.',
+    scopes: ['https://www.googleapis.com/auth/forms.body'],
+    category: 'sensitive',
+  },
+  {
+    id: 'forms-responses-read',
+    name: 'Google Forms — Lihat respons',
+    service: 'forms',
+    description: 'Membaca respons/pengisian formulir untuk rekap atau analisis. Tidak dapat mengubah respons.',
     scopes: [
-      'https://www.googleapis.com/auth/forms.body',
-      'https://www.googleapis.com/auth/forms.body.readonly',
       'https://www.googleapis.com/auth/forms.responses.readonly',
     ],
     category: 'sensitive',
@@ -204,6 +234,20 @@ export const GOOGLE_WORKSPACE_SCOPE_ALLOWLIST = new Set([
   ...MCP_TOOLS.flatMap((tool) => tool.scopes),
 ])
 
+// Scope tulis Google juga mencakup akses baca pasangannya. Kita kirim hanya
+// scope yang lebih luas agar permintaan OAuth tetap minimal dan tidak duplikat.
+const GOOGLE_SCOPE_IMPLICATIONS: Record<string, string[]> = {
+  'https://www.googleapis.com/auth/calendar.events': ['https://www.googleapis.com/auth/calendar.events.readonly'],
+  'https://www.googleapis.com/auth/documents': ['https://www.googleapis.com/auth/documents.readonly'],
+  'https://www.googleapis.com/auth/forms.body': ['https://www.googleapis.com/auth/forms.body.readonly'],
+}
+
+export function hasGoogleScope(grantedScopes: Iterable<string>, requiredScope: string) {
+  const granted = new Set(grantedScopes)
+  return granted.has(requiredScope) || Object.entries(GOOGLE_SCOPE_IMPLICATIONS)
+    .some(([scope, impliedScopes]) => granted.has(scope) && impliedScopes.includes(requiredScope))
+}
+
 export function isSupportedGoogleToolId(toolId: string) {
   return MCP_TOOLS.some((tool) => tool.id === toolId)
 }
@@ -212,5 +256,10 @@ export function getMcpToolScopes(toolIds: string[], includeBaseline = true) {
   const toolScopes = toolIds
     .filter(isSupportedGoogleToolId)
     .flatMap((id) => MCP_TOOLS.find((tool) => tool.id === id)?.scopes ?? [])
-  return [...new Set([...(includeBaseline ? GOOGLE_BASELINE_SCOPES : []), ...toolScopes])]
+  const uniqueToolScopes = [...new Set(toolScopes)]
+  const nonRedundantToolScopes = uniqueToolScopes.filter((scope) =>
+    !Object.entries(GOOGLE_SCOPE_IMPLICATIONS)
+      .some(([grantedScope, impliedScopes]) => grantedScope !== scope && uniqueToolScopes.includes(grantedScope) && impliedScopes.includes(scope))
+  )
+  return [...new Set([...(includeBaseline ? GOOGLE_BASELINE_SCOPES : []), ...nonRedundantToolScopes])]
 }

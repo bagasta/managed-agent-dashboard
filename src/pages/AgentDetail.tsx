@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import type { Agent, AgentMessageResponse, AgentStepSummary, ModelInfo, OAuthConnection, ToolsConfig, WAQRResponse, McpTool, User } from '../types'
-import { MCP_TOOLS } from '../types'
+import { hasGoogleScope, MCP_TOOLS } from '../types'
 import { agentApi } from '../api/agents'
 import { oauthApi } from '../api/oauth'
 import { useI18n } from '../i18n'
@@ -140,7 +140,7 @@ export default function AgentDetail({ user }: { user: User }) {
   const googleConnectedWithoutScopes = connections.length > 0 && connectedGoogleScopes.size === 0
   const selectedUnconnectedTools = selectedTools.filter((toolId) => {
     const tool = MCP_TOOLS.find((item) => item.id === toolId)
-    return tool ? !tool.scopes.every((scope) => connectedGoogleScopes.has(scope)) : false
+    return tool ? !tool.scopes.every((scope) => hasGoogleScope(connectedGoogleScopes, scope)) : false
   })
   const googleServer = getGoogleWorkspaceServer(tools)
   const googleRuntimeActive = isGoogleWorkspaceMcpEnabled(tools)
@@ -905,7 +905,7 @@ export default function AgentDetail({ user }: { user: User }) {
               )}
               <div className="grid grid-cols-1 gap-2">
                 {MCP_TOOLS.map((tool: McpTool) => {
-                  const connected = tool.scopes.every((scope) => connectedGoogleScopes.has(scope))
+                  const connected = tool.scopes.every((scope) => hasGoogleScope(connectedGoogleScopes, scope))
                   const checked = connected || selectedTools.includes(tool.id)
                   return (
                     <label
