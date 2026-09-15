@@ -1,4 +1,4 @@
-import { getMcpToolScopes, MCP_TOOLS, McpTool } from '../types'
+import { getMcpToolDescription, getMcpToolName, getMcpToolScopes, MCP_TOOLS, McpTool } from '../types'
 import { useI18n } from '../i18n'
 
 type Props = {
@@ -7,7 +7,7 @@ type Props = {
 }
 
 export function McpToolSelector({ selected, onChange }: Props) {
-  const { t } = useI18n()
+  const { t, language } = useI18n()
   const toggle = (id: string) => {
     onChange(selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id])
   }
@@ -35,12 +35,12 @@ export function McpToolSelector({ selected, onChange }: Props) {
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-ink-900">{tool.name}</span>
+                <span className="text-sm font-medium text-ink-900">{getMcpToolName(tool, language)}</span>
                 <span className="text-xs px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">
                   {tool.category}
                 </span>
               </div>
-              <p className="text-xs text-ink-500 mt-0.5">{tool.description}</p>
+              <p className="text-xs text-ink-500 mt-0.5">{getMcpToolDescription(tool, language)}</p>
             </div>
           </label>
         ))}

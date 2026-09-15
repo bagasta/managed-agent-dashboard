@@ -140,10 +140,20 @@ export type OAuthConnection = {
 export type McpTool = {
   id: string
   name: string
+  nameEn: string
   service: string
   description: string
+  descriptionEn: string
   scopes: string[]
   category: 'sensitive' | 'non-sensitive'
+}
+
+export function getMcpToolName(tool: McpTool, language: 'id' | 'en') {
+  return language === 'en' ? tool.nameEn : tool.name
+}
+
+export function getMcpToolDescription(tool: McpTool, language: 'id' | 'en') {
+  return language === 'en' ? tool.descriptionEn : tool.description
 }
 
 export const GOOGLE_BASELINE_SCOPES = [
@@ -156,96 +166,120 @@ export const MCP_TOOLS: McpTool[] = [
   {
     id: 'gmail-send',
     name: 'Gmail (Send)',
+    nameEn: 'Gmail (Send)',
     service: 'gmail',
     description: 'Mengirim email hanya setelah pengguna meminta agent mengirimkannya. Agent tidak menghapus atau mengubah email.',
+    descriptionEn: 'Send email only after the user asks the agent to send it. The agent does not delete or change email.',
     scopes: ['https://www.googleapis.com/auth/gmail.send'],
     category: 'sensitive',
   },
   {
     id: 'gmail-read',
     name: 'Gmail (Read)',
+    nameEn: 'Gmail (Read)',
     service: 'gmail',
     description: 'Membaca email untuk merangkum atau mengambil informasi yang diminta pengguna. Agent tidak mengubah email.',
+    descriptionEn: 'Read email to summarize or retrieve information requested by the user. The agent does not change email.',
     scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
     category: 'sensitive',
   },
   {
     id: 'drive-file-manage',
     name: 'Google Drive — Kelola file aplikasi',
+    nameEn: 'Google Drive — Manage app files',
     service: 'drive',
     description: 'Melihat, membuat, mengubah, dan menghapus hanya file yang dibuat oleh aplikasi atau dipilih pengguna melalui aplikasi. Tidak dapat menjelajahi seluruh Drive.',
+    descriptionEn: 'View, create, edit, and delete only files created by this app or selected by the user in this app. Cannot browse the entire Drive.',
     scopes: ['https://www.googleapis.com/auth/drive.file'],
     category: 'non-sensitive',
   },
   {
     id: 'calendar-read',
     name: 'Google Calendar — Lihat event',
+    nameEn: 'Google Calendar — View events',
     service: 'calendar',
     description: 'Melihat event kalender untuk menjawab pertanyaan jadwal. Tidak dapat membuat, mengubah, atau menghapus event.',
+    descriptionEn: 'View calendar events to answer scheduling questions. Cannot create, edit, or delete events.',
     scopes: ['https://www.googleapis.com/auth/calendar.events.readonly'],
     category: 'sensitive',
   },
   {
     id: 'calendar-manage',
     name: 'Google Calendar — Kelola event',
+    nameEn: 'Google Calendar — Manage events',
     service: 'calendar',
     description: 'Membuat, mengubah, dan menghapus event kalender hanya atas permintaan pengguna. Izin ini juga mencakup melihat event.',
+    descriptionEn: 'Create, edit, and delete calendar events only at the user’s request. This permission also includes viewing events.',
     scopes: ['https://www.googleapis.com/auth/calendar.events'],
     category: 'sensitive',
   },
   {
     id: 'docs-read',
     name: 'Google Docs — Lihat dokumen',
+    nameEn: 'Google Docs — View documents',
     service: 'docs',
     description: 'Membaca isi dokumen Google Docs untuk menjawab atau merangkum. Tidak dapat membuat atau mengubah dokumen.',
+    descriptionEn: 'Read Google Docs content to answer or summarize. Cannot create or edit documents.',
     scopes: ['https://www.googleapis.com/auth/documents.readonly'],
     category: 'sensitive',
   },
   {
     id: 'docs-manage',
     name: 'Google Docs — Buat & edit dokumen',
+    nameEn: 'Google Docs — Create & edit documents',
     service: 'docs',
     description: 'Membuat dan mengedit dokumen Google Docs atas permintaan pengguna. Izin ini juga mencakup membaca dokumen.',
+    descriptionEn: 'Create and edit Google Docs at the user’s request. This permission also includes reading documents.',
     scopes: ['https://www.googleapis.com/auth/documents'],
     category: 'sensitive',
   },
   {
     id: 'sheets-read',
     name: 'Google Sheets — Lihat spreadsheet',
+    nameEn: 'Google Sheets — View spreadsheets',
     service: 'sheets',
     description: 'Membaca isi spreadsheet untuk menjawab pertanyaan atau membuat ringkasan. Tidak dapat membuat atau mengubah spreadsheet.',
+    descriptionEn: 'Read spreadsheet content to answer questions or create summaries. Cannot create or edit spreadsheets.',
     scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
     category: 'sensitive',
   },
   {
     id: 'sheets-manage',
     name: 'Google Sheets — Buat & edit spreadsheet',
+    nameEn: 'Google Sheets — Create & edit spreadsheets',
     service: 'sheets',
     description: 'Membuat, mengubah, dan menghapus spreadsheet atas permintaan pengguna. Izin ini juga mencakup membaca spreadsheet.',
+    descriptionEn: 'Create, edit, and delete spreadsheets at the user’s request. This permission also includes reading spreadsheets.',
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     category: 'sensitive',
   },
   {
     id: 'forms-body-read',
     name: 'Google Forms — Lihat struktur formulir',
+    nameEn: 'Google Forms — View form structure',
     service: 'forms',
     description: 'Melihat judul, pertanyaan, dan pengaturan formulir. Tidak dapat membuat atau mengubah formulir.',
+    descriptionEn: 'View form titles, questions, and settings. Cannot create or edit forms.',
     scopes: ['https://www.googleapis.com/auth/forms.body.readonly'],
     category: 'sensitive',
   },
   {
     id: 'forms-manage',
     name: 'Google Forms — Buat & edit formulir',
+    nameEn: 'Google Forms — Create & edit forms',
     service: 'forms',
     description: 'Membuat, mengubah, dan menghapus formulir atas permintaan pengguna. Google menyediakan satu scope kelola, bukan scope terpisah untuk buat/edit/hapus.',
+    descriptionEn: 'Create, edit, and delete forms at the user’s request. Google provides one management scope, not separate create/edit/delete scopes.',
     scopes: ['https://www.googleapis.com/auth/forms.body'],
     category: 'sensitive',
   },
   {
     id: 'forms-responses-read',
     name: 'Google Forms — Lihat respons',
+    nameEn: 'Google Forms — View responses',
     service: 'forms',
     description: 'Membaca respons/pengisian formulir untuk rekap atau analisis. Tidak dapat mengubah respons.',
+    descriptionEn: 'Read form responses for summaries or analysis. Cannot change responses.',
     scopes: [
       'https://www.googleapis.com/auth/forms.responses.readonly',
     ],

@@ -28,7 +28,7 @@ const COPY: Record<Lang, LangCopy> = {
       title1: 'Clevio AI Staff',
       title2: 'untuk WhatsApp Anda.',
       sub: 'Menjawab pelanggan, mengatur jadwal, mengurus hal kecil — sepanjang hari. Siap dalam lima menit.',
-      cta: 'Mulai gratis',
+      cta: 'Chat dengan Arthur',
       learn: 'Pelajari lebih lanjut',
       badge: 'Aktif sekarang',
       heroChat: [
@@ -97,7 +97,7 @@ const COPY: Record<Lang, LangCopy> = {
         { q: 'Bisa berhenti kapan saja?', a: 'Bebas berhenti kapan saja. Tanpa kontrak, tanpa biaya tersembunyi.' },
       ],
     },
-    cta: { title: 'Mulai hari ini.', sub: 'Gratis untuk dicoba. Tanpa kartu kredit.', btn: 'Mulai sekarang' },
+    cta: { title: 'Mulai hari ini.', sub: 'Ceritakan kebutuhan Anda kepada Arthur. Tanpa form panjang.', btn: 'Chat dengan Arthur' },
     footer: {
       clevio: 'Clevio AI Staff', dukungan: 'Dukungan', perusahaan: 'Perusahaan', legal: 'Legal',
       links: {
@@ -146,7 +146,7 @@ const COPY: Record<Lang, LangCopy> = {
       title1: 'Clevio AI Staff',
       title2: 'for your WhatsApp.',
       sub: 'Replies to customers, schedules appointments, handles small tasks — all day long. Ready in five minutes.',
-      cta: 'Start free',
+      cta: 'Chat with Arthur',
       learn: 'Learn more',
       badge: 'Active now',
       heroChat: [
@@ -215,7 +215,7 @@ const COPY: Record<Lang, LangCopy> = {
         { q: 'Can I cancel anytime?', a: 'Cancel anytime. No contracts, no hidden fees.' },
       ],
     },
-    cta: { title: 'Start today.', sub: 'Free to try. No credit card.', btn: 'Get started' },
+    cta: { title: 'Start today.', sub: 'Tell Arthur what you need. No long forms.', btn: 'Chat with Arthur' },
     footer: {
       clevio: 'Clevio AI Staff', dukungan: 'Support', perusahaan: 'Company', legal: 'Legal',
       links: {
@@ -258,6 +258,9 @@ const COPY: Record<Lang, LangCopy> = {
     ],
   },
 }
+
+const ARTHUR_WHATSAPP_URL =
+  'https://wa.me/6282221118860?text=Halo%20Arthur%2C%20bantu%20saya%20buat%20agent%20yang%20cocok%20dengan%20kebutuhan%20saya'
 
 function FadeUp({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -501,13 +504,13 @@ export default function Landing() {
               </FadeUp>
               <FadeUp delay={240}>
                 <div className="mt-9 flex items-center justify-center lg:justify-start gap-6 flex-wrap">
-                  <Link to="/login"
+                  <a href={ARTHUR_WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center justify-center rounded-full text-white text-[15px] font-medium px-6 py-3 transition-all hover:-translate-y-px"
                     style={{ background: '#0071e3' }}
                     onMouseEnter={e => (e.currentTarget.style.background = '#0058b9')}
                     onMouseLeave={e => (e.currentTarget.style.background = '#0071e3')}>
                     {t.hero.cta}
-                  </Link>
+                  </a>
                   <a href="#cara" className="inline-flex items-center gap-1 text-[15px] text-ink-900 hover:text-ink-700 transition-colors">
                     {t.hero.learn}<Arrow />
                   </a>
@@ -805,10 +808,10 @@ export default function Landing() {
             <h2 className="font-semibold tracking-[-0.025em] leading-[1.05]" style={{ fontSize: 'clamp(40px, 6vw, 64px)' }}>{t.cta.title}</h2>
             <p className="mt-5 text-[18px] text-white/70">{t.cta.sub}</p>
             <div className="mt-10">
-              <Link to="/login"
+              <a href={ARTHUR_WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center justify-center rounded-full bg-white text-[#0a2540] px-7 py-3 text-[15px] font-medium transition-all hover:bg-ink-100 hover:-translate-y-px">
                 {t.cta.btn}
-              </Link>
+              </a>
             </div>
           </FadeUp>
         </div>

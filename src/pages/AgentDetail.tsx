@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import type { Agent, AgentMessageResponse, AgentStepSummary, ModelInfo, OAuthConnection, ToolsConfig, WAQRResponse, McpTool, User } from '../types'
-import { hasGoogleScope, MCP_TOOLS } from '../types'
+import { getMcpToolDescription, getMcpToolName, hasGoogleScope, MCP_TOOLS } from '../types'
 import { agentApi } from '../api/agents'
 import { oauthApi } from '../api/oauth'
 import { useI18n } from '../i18n'
@@ -71,7 +71,7 @@ function agentBelongsToUser(agent: Agent, user: User) {
 }
 
 export default function AgentDetail({ user }: { user: User }) {
-  const { t } = useI18n()
+  const { t, language } = useI18n()
   const { id } = useParams<{ id: string }>()
   const nav = useNavigate()
   const [searchParams] = useSearchParams()
@@ -437,7 +437,10 @@ export default function AgentDetail({ user }: { user: User }) {
   const operatorPhone = typeof escalationConfig.operator_phone === 'string' ? escalationConfig.operator_phone : ''
   const tokenUsagePercent = agent.token_quota > 0 ? Math.min(100, (agent.tokens_used / agent.token_quota) * 100) : 0
   const selectedToolLabels = savedGoogleToolIds
-    .map((toolId) => MCP_TOOLS.find((tool) => tool.id === toolId)?.name || toolId)
+    .map((toolId) => {
+      const tool = MCP_TOOLS.find((item) => item.id === toolId)
+      return tool ? getMcpToolName(tool, language) : toolId
+    })
     .slice(0, 4)
 
   const testPanel = (
@@ -930,9 +933,9 @@ export default function AgentDetail({ user }: { user: User }) {
                         className="mt-1 accent-ink-900 disabled:opacity-70"
                       />
                       <div className="min-w-0">
-                        <div className="text-sm font-medium">{tool.name}</div>
+                        <div className="text-sm font-medium">{getMcpToolName(tool, language)}</div>
                         <div className="text-xs text-ink-500">
-                          {connected ? t('agent.connected', 'Terhubung') : tool.description}
+                          {connected ? t('agent.connected', 'Terhubung') : getMcpToolDescription(tool, language)}
                         </div>
                         <div className="mt-1 text-[11px] leading-4 text-ink-400 break-all">
                           {tool.scopes.join(' · ')}
