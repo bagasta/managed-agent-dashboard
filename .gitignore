@@ -32,7 +32,12 @@ GEMINI.md
 antislop.md
 AI-docs/
 Oauth-google-preparation/
-deploy/
 docs/
 *.csv
 *.xlsx
+
+# Local WhatsApp tools & phone lists (PII protection)
+whatsapp-sender/
+*.bat
+nomor*.txt
+template*.txt

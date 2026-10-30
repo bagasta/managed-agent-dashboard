@@ -1,0 +1,70 @@
+server {
+  listen 80;
+  server_name _;
+
+  root /usr/share/nginx/html;
+  index index.html;
+
+  # =========================================================================
+  # SECURITY HEADERS (Defensive Hardening against Clickjacking & XSS)
+  # =========================================================================
+  add_header X-Frame-Options "SAMEORIGIN" always;
+  add_header X-Content-Type-Options "nosniff" always;
+  add_header X-XSS-Protection "1; mode=block" always;
+  add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+  add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+
+  # =========================================================================
+  # HEALTHCHECK
+  # =========================================================================
+  location = /healthz {
+    access_log off;
+    add_header Content-Type text/plain;
+    return 200 "ok\n";
+  }
+
+  # =========================================================================
+  # REMEDIATION (vuln-0001, vuln-0002, vuln-0003, vuln-0005, vuln-0010):
+  # Blokir total akses /v1/ dari domain publik apex chiefaiofficer.id.
+  # API internal hanya boleh diakses melalui vhost terautentikasi (managed-agent).
+  # =========================================================================
+  location /v1/ {
+    access_log /var/log/nginx/blocked_v1.log;
+    default_type application/json;
+    return 403 '{"error": "Forbidden", "message": "Direct API access via apex domain is disabled. Use authenticated API gateway.", "code": 403}';
+  }
+
+  # =========================================================================
+  # REMEDIATION (vuln-0004):
+  # Blokir pass-through webhook pembayaran tidak terautentikasi.
+  # Webhook resmi harus langsung memvalidasi signature provider (Midtrans/DOKU).
+  # =========================================================================
+  location = /payment-webhook {
+    access_log /var/log/nginx/blocked_webhook.log;
+    default_type application/json;
+    return 403 '{"error": "Forbidden", "message": "Unauthenticated payment webhook relay is disabled.", "code": 403}';
+  }
+
+  location = /payment-create-checkout {
+    default_type application/json;
+    return 403 '{"error": "Forbidden", "message": "Endpoint moved to backend gateway.", "code": 403}';
+  }
+
+  # =========================================================================
+  # STATIC ASSETS CACHING
+  # =========================================================================
+  location /assets/ {
+    try_files $uri =404;
+    access_log off;
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+    add_header X-Content-Type-Options "nosniff" always;
+  }
+
+  # =========================================================================
+  # SPA FALLBACK (Frontend Landing Page)
+  # =========================================================================
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+}
