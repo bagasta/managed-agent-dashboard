@@ -7,9 +7,9 @@ Official landing page and production gateway configuration for **Clevio AI Staff
 
 ---
 
-## 🛡️ Panduan Cepat Hardening Keamanan Server (Untuk Supervisor / DevOps)
+## 🛡️ Panduan Cepat Hardening Keamanan Server (DevOps / Server Admin)
 
-Hasil audit keamanan 2026-10-28 telah diselesaikan dan diintegrasikan ke repository ini. Untuk menutup celah keamanan di server produksi (`194.238.23.242`), supervisor cukup menjalankan 3 baris perintah berikut di VPS:
+Hasil audit keamanan 2026-10-28 telah diselesaikan dan diintegrasikan ke repository ini. Untuk menutup celah keamanan di server produksi (`194.238.23.242`), cukup jalankan 3 baris perintah berikut di VPS:
 
 ```bash
 # 1. Masuk ke direktori dashboard di VPS
@@ -91,7 +91,7 @@ npm run preview
 │   ├── docker-compose.prod.yml
 │   └── nginx.conf.template   # Template Nginx dengan pemblokiran /v1/ & security headers
 ├── scripts/
-│   └── harden-vps.sh         # Skrip otomatisasi hardening port & server untuk supervisor
+│   └── harden-vps.sh         # Skrip otomatisasi hardening port & server VPS
 ├── src/                      # Source code React + TypeScript
 ├── 00-RINGKASAN.md           # Ringkasan eksekutif laporan audit keamanan
 ├── REMEDIASI-VULNERABILITY-MASTER.md # Panduan master detail perbaikan 10 kerentanan
